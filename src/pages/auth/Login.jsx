@@ -1,4 +1,3 @@
- 
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -6,6 +5,7 @@ import { useLogin, useMerchantLogin } from '../../api/authApi';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../features/auth/authSlice';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const customerSchema = yup.object({
   email: yup.string().email().required(),
@@ -28,6 +28,7 @@ export default function Login() {
   const { mutate: login, isLoading: loginLoading } = useLogin();
   const { mutate: merchantLogin, isLoading: merchantLoading } = useMerchantLogin();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isLoading = loginLoading || merchantLoading;
 
   const onSubmit = (data) => {
@@ -35,6 +36,12 @@ export default function Login() {
     loginFn(data, {
       onSuccess: (response) => {
         dispatch(setCredentials(response));
+        // Check if 2FA is required (assuming backend includes a flag, e.g., `twoFactorEnabled`)
+        if (response.user.twoFactorEnabled && !response.user.twoFactorVerified) {
+          navigate('/2fa');
+        } else {
+          navigate(isMerchant ? '/merchant/dashboard' : '/customer/dashboard');
+        }
       },
     });
   };
@@ -62,6 +69,11 @@ export default function Login() {
               <input
                 {...register('deviceId')}
                 placeholder="Device ID (optional)"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                {...register('deviceType')}
+                placeholder="Device Type (optional)"
                 className="w-full p-2 border rounded"
               />
               <label className="flex items-center">
