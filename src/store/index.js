@@ -1,15 +1,14 @@
-// C:\Users\munch\Desktop\MTFrontWeb\src\store\index.js
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/authSlice';
 import socketReducer from '../features/socket/socketSlice';
-import geolocationReducer from '../features/common/geolocationSlice';
-import excelReducer from '../features/common/excelSlice'; // New import
+import merchantProfileReducer from '../features/merchant/merchantProfileSlice';
 
-export const store = configureStore({
+const store = configureStore({
   reducer: {
     auth: authReducer,
     socket: socketReducer,
-    geolocation: geolocationReducer,
-    excel: excelReducer, // Add excel reducer
+    merchantProfile: merchantProfileReducer,
   },
 });
+
+export default store;

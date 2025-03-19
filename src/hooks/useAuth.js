@@ -1,31 +1,21 @@
- 
 import { useSelector, useDispatch } from 'react-redux';
-import { setCredentials, logout } from '../features/auth/authSlice';
-import { useRefreshToken } from '../api/authApi';
+import { setUser } from '../features/auth/authSlice';
 
-export const useAuth = () => {
+const useAuth = () => {
   const dispatch = useDispatch();
-  const { user, token, refreshToken, role, merchant } = useSelector((state) => state.auth);
-  const { mutate: refresh } = useRefreshToken();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  const isAuthenticated = !!token;
-
-  const refreshAuth = () => {
-    if (refreshToken) {
-      refresh(refreshToken, {
-        onSuccess: (response) => {
-          dispatch(setCredentials(response));
-        },
-        onError: () => {
-          dispatch(logout());
-        },
-      });
-    }
+  const login = (userData) => {
+    dispatch(setUser(userData));
+    localStorage.setItem('token', userData.token);
   };
 
-  const logoutUser = () => {
-    dispatch(logout());
+  const logout = () => {
+    dispatch(setUser(null));
+    localStorage.removeItem('token');
   };
 
-  return { user, token, refreshToken, role, merchant, isAuthenticated, refreshAuth, logoutUser };
+  return { user, isAuthenticated, login, logout };
 };
+
+export default useAuth;
