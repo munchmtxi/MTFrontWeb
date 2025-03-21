@@ -1,3 +1,4 @@
+// src/store/index.js
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/authSlice';
 import socketReducer from '../features/socket/socketSlice';
@@ -13,6 +14,7 @@ import merchantPasswordReducer from '../features/merchant/merchantPasswordSlice'
 import merchantPerformanceMetricsReducer from '../features/merchant/merchantPerformanceMetricsSlice';
 import merchantPreviewReducer from '../features/merchant/merchantPreviewSlice';
 import branchReducer from '../features/merchant/branch/branchSlice';
+import productReducer from '../features/merchant/productSlice'; // Add this
 
 const store = configureStore({
   reducer: {
@@ -30,6 +32,7 @@ const store = configureStore({
     merchantPerformanceMetrics: merchantPerformanceMetricsReducer,
     merchantPreview: merchantPreviewReducer,
     branch: branchReducer,
+    products: productReducer, // Add this
   },
 });
 
