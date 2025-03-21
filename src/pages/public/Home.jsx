@@ -157,7 +157,7 @@ const Home = () => {
       <main>
         {/* Hero Section */}
         <section css={heroSectionStyles}>
-          <h1 css={heroTitle}>Welcome to Munch Mtxi</h1>
+          <h1 css={heroTitle}>WELCOME</h1>
           <p css={heroSubtitle}>
             Experience the future of food delivery and restaurant booking
           </p>

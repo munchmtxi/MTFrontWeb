@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { css, useTheme } from '@emotion/react';
 import { motion } from 'framer-motion';
-import { User, ChevronDown } from 'lucide-react';
+import { User, Wrench, ChevronDown, Store } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/features/auth/authSlice';
@@ -36,14 +36,35 @@ const munchStyles = (theme) => css`color: ${theme.components.roles.customer.prim
 const mStyles = (theme) => css`color: ${theme.components.roles.customer.secondary};`;
 const txiStyles = (theme) => css`color: #ffffff;`;
 
+const navContainerStyles = (theme) => css`
+  display: flex;
+  align-items: center;
+`;
+
+const branchContainerStyles = (theme) => css`
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: ${theme.spacing[4]};
+`;
+
 const profileContainerStyles = (theme) => css`
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: ${theme.spacing[4]};
+`;
+
+const toolsContainerStyles = (theme) => css`
   position: relative;
   display: flex;
   align-items: center;
   cursor: pointer;
 `;
 
-const profileIconStyles = (theme) => css`
+const iconStyles = (theme) => css`
   color: #ffffff;
   margin-right: ${theme.spacing[2]};
   transition: transform 0.2s ease-out;
@@ -87,14 +108,32 @@ const MerchantHeader = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.auth);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
+  const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
 
   const isMerchant = token && user?.role === 'merchant';
   if (!isMerchant) return null;
 
   const handleProfileClick = (e) => {
     e.preventDefault();
-    setIsDropdownOpen((prev) => !prev);
+    setIsProfileDropdownOpen((prev) => !prev);
+    setIsToolsDropdownOpen(false);
+    setIsBranchDropdownOpen(false);
+  };
+
+  const handleToolsClick = (e) => {
+    e.preventDefault();
+    setIsToolsDropdownOpen((prev) => !prev);
+    setIsProfileDropdownOpen(false);
+    setIsBranchDropdownOpen(false);
+  };
+
+  const handleBranchClick = (e) => {
+    e.preventDefault();
+    setIsBranchDropdownOpen((prev) => !prev);
+    setIsProfileDropdownOpen(false);
+    setIsToolsDropdownOpen(false);
   };
 
   const handleLogout = () => {
@@ -111,24 +150,66 @@ const MerchantHeader = () => {
           <span css={mStyles(theme)}>M</span>
           <span css={txiStyles(theme)}>TXI</span>
         </Link>
-        <div css={profileContainerStyles(theme)} onClick={handleProfileClick}>
-          <User css={profileIconStyles(theme)} size={24} />
-          <ChevronDown css={profileIconStyles(theme)} size={16} />
-          {isDropdownOpen && (
-            <motion.div
-              css={dropdownStyles(theme)}
-              variants={dropdownVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-            >
-              <Link to="/merchant/profile" css={dropdownItemStyles(theme)}>Profile</Link>
-              <Link to="/merchant/business-hours" css={dropdownItemStyles(theme)}>Business Hours</Link>
-              <Link to="/merchant/delivery-settings" css={dropdownItemStyles(theme)}>Delivery Settings</Link>
-              <Link to="/merchant/branches" css={dropdownItemStyles(theme)}>Branches</Link>
-              <button onClick={handleLogout} css={dropdownItemStyles(theme)}>Logout</button>
-            </motion.div>
-          )}
+        <div css={navContainerStyles(theme)}>
+          <div css={branchContainerStyles(theme)} onClick={handleBranchClick}>
+            <Store css={iconStyles(theme)} size={24} />
+            <ChevronDown css={iconStyles(theme)} size={16} />
+            {isBranchDropdownOpen && (
+              <motion.div
+                css={dropdownStyles(theme)}
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <Link to="/merchant/branch-management" css={dropdownItemStyles(theme)}>Branch Management</Link>
+                <Link to="/merchant/branch-security" css={dropdownItemStyles(theme)}>Branch Security</Link>
+              </motion.div>
+            )}
+          </div>
+          <div css={profileContainerStyles(theme)} onClick={handleProfileClick}>
+            <User css={iconStyles(theme)} size={24} />
+            <ChevronDown css={iconStyles(theme)} size={16} />
+            {isProfileDropdownOpen && (
+              <motion.div
+                css={dropdownStyles(theme)}
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <Link to="/merchant/profile" css={dropdownItemStyles(theme)}>Profile</Link>
+                <Link to="/merchant/business-hours" css={dropdownItemStyles(theme)}>Business Hours</Link>
+                <Link to="/merchant/delivery-settings" css={dropdownItemStyles(theme)}>Delivery Settings</Link>
+                <Link to="/merchant/branches" css={dropdownItemStyles(theme)}>Branches</Link>
+                <Link to="/merchant/2fa" css={dropdownItemStyles(theme)}>2FA</Link>
+                <Link to="/merchant/password" css={dropdownItemStyles(theme)}>Password</Link>
+                <button onClick={handleLogout} css={dropdownItemStyles(theme)}>Logout</button>
+              </motion.div>
+            )}
+          </div>
+          <div css={toolsContainerStyles(theme)} onClick={handleToolsClick}>
+            <Wrench css={iconStyles(theme)} size={24} />
+            <ChevronDown css={iconStyles(theme)} size={16} />
+            {isToolsDropdownOpen && (
+              <motion.div
+                css={dropdownStyles(theme)}
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <Link to="/merchant/banners" css={dropdownItemStyles(theme)}>Banners</Link>
+                <Link to="/merchant/activity-log" css={dropdownItemStyles(theme)}>Activity Log</Link>
+                <Link to="/merchant/analytics" css={dropdownItemStyles(theme)}>Analytics</Link>
+                <Link to="/merchant/drafts" css={dropdownItemStyles(theme)}>Drafts</Link>
+                <Link to="/merchant/images" css={dropdownItemStyles(theme)}>Images</Link>
+                <Link to="/merchant/maps" css={dropdownItemStyles(theme)}>Maps</Link>
+                <Link to="/merchant/performance-metrics" css={dropdownItemStyles(theme)}>Performance Metrics</Link>
+                <Link to="/merchant/preview" css={dropdownItemStyles(theme)}>Preview</Link>
+              </motion.div>
+            )}
+          </div>
         </div>
       </div>
     </motion.header>
