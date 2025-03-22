@@ -31,7 +31,8 @@ import MerchantPassword from './pages/merchant/MerchantPassword';
 import MerchantPerformanceMetrics from './pages/merchant/MerchantPerformanceMetrics';
 import MerchantPreview from './pages/merchant/MerchantPreview';
 import BranchManagement from './pages/merchant/BranchManagement';
-import Products from './pages/merchant/Products'; // Add this import
+import Products from './pages/merchant/Products';
+import Inventory from './pages/merchant/Inventory'; // Add this
 
 const queryClient = new QueryClient();
 
@@ -180,6 +181,14 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/merchant/inventory"
+                  element={
+                    <ProtectedRoute allowedRoles={['merchant']}>
+                      <Inventory />
+                    </ProtectedRoute>
+                  }
+                /> {/* Add this */}
                 <Route
                   path="/merchant/maps"
                   element={

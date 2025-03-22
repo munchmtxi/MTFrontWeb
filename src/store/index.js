@@ -14,7 +14,8 @@ import merchantPasswordReducer from '../features/merchant/merchantPasswordSlice'
 import merchantPerformanceMetricsReducer from '../features/merchant/merchantPerformanceMetricsSlice';
 import merchantPreviewReducer from '../features/merchant/merchantPreviewSlice';
 import branchReducer from '../features/merchant/branch/branchSlice';
-import productReducer from '../features/merchant/productSlice'; // Add this
+import productReducer from '../features/merchant/productSlice';
+import inventoryReducer from '../features/merchant/inventorySlice'; // Add this
 
 const store = configureStore({
   reducer: {
@@ -32,7 +33,8 @@ const store = configureStore({
     merchantPerformanceMetrics: merchantPerformanceMetricsReducer,
     merchantPreview: merchantPreviewReducer,
     branch: branchReducer,
-    products: productReducer, // Add this
+    products: productReducer,
+    inventory: inventoryReducer, // Add this
   },
 });
 

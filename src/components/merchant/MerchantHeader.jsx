@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { User, Wrench, ChevronDown, Store } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '@/features/auth/authSlice';
+import { logout } from '../../features/auth/authSlice';
 
 const merchantHeaderStyles = (theme) => css`
   position: sticky;
@@ -204,6 +204,7 @@ const MerchantHeader = () => {
                 <Link to="/merchant/analytics" css={dropdownItemStyles(theme)}>Analytics</Link>
                 <Link to="/merchant/drafts" css={dropdownItemStyles(theme)}>Drafts</Link>
                 <Link to="/merchant/images" css={dropdownItemStyles(theme)}>Images</Link>
+                <Link to="/merchant/inventory" css={dropdownItemStyles(theme)}>Inventory</Link> {/* New Link */}
                 <Link to="/merchant/maps" css={dropdownItemStyles(theme)}>Maps</Link>
                 <Link to="/merchant/performance-metrics" css={dropdownItemStyles(theme)}>Performance Metrics</Link>
                 <Link to="/merchant/preview" css={dropdownItemStyles(theme)}>Preview</Link>
