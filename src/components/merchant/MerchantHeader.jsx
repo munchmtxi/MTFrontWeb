@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { css, useTheme } from '@emotion/react';
 import { motion } from 'framer-motion';
-import { User, Wrench, ChevronDown, Store } from 'lucide-react';
+import { User, Wrench, ChevronDown, Store, Calendar } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
@@ -64,6 +64,14 @@ const toolsContainerStyles = (theme) => css`
   cursor: pointer;
 `;
 
+const reservationsContainerStyles = (theme) => css`
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: ${theme.spacing[4]};
+`;
+
 const iconStyles = (theme) => css`
   color: #ffffff;
   margin-right: ${theme.spacing[2]};
@@ -111,6 +119,7 @@ const MerchantHeader = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
+  const [isReservationsDropdownOpen, setIsReservationsDropdownOpen] = useState(false);
 
   const isMerchant = token && user?.role === 'merchant';
   if (!isMerchant) return null;
@@ -120,6 +129,7 @@ const MerchantHeader = () => {
     setIsProfileDropdownOpen((prev) => !prev);
     setIsToolsDropdownOpen(false);
     setIsBranchDropdownOpen(false);
+    setIsReservationsDropdownOpen(false);
   };
 
   const handleToolsClick = (e) => {
@@ -127,6 +137,7 @@ const MerchantHeader = () => {
     setIsToolsDropdownOpen((prev) => !prev);
     setIsProfileDropdownOpen(false);
     setIsBranchDropdownOpen(false);
+    setIsReservationsDropdownOpen(false);
   };
 
   const handleBranchClick = (e) => {
@@ -134,6 +145,15 @@ const MerchantHeader = () => {
     setIsBranchDropdownOpen((prev) => !prev);
     setIsProfileDropdownOpen(false);
     setIsToolsDropdownOpen(false);
+    setIsReservationsDropdownOpen(false);
+  };
+
+  const handleReservationsClick = (e) => {
+    e.preventDefault();
+    setIsReservationsDropdownOpen((prev) => !prev);
+    setIsProfileDropdownOpen(false);
+    setIsToolsDropdownOpen(false);
+    setIsBranchDropdownOpen(false);
   };
 
   const handleLogout = () => {
@@ -164,6 +184,21 @@ const MerchantHeader = () => {
               >
                 <Link to="/merchant/branch-management" css={dropdownItemStyles(theme)}>Branch Management</Link>
                 <Link to="/merchant/branch-security" css={dropdownItemStyles(theme)}>Branch Security</Link>
+              </motion.div>
+            )}
+          </div>
+          <div css={reservationsContainerStyles(theme)} onClick={handleReservationsClick}>
+            <Calendar css={iconStyles(theme)} size={24} />
+            <ChevronDown css={iconStyles(theme)} size={16} />
+            {isReservationsDropdownOpen && (
+              <motion.div
+                css={dropdownStyles(theme)}
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <Link to="/merchant/reservations" css={dropdownItemStyles(theme)}>Reservations</Link>
               </motion.div>
             )}
           </div>
@@ -204,7 +239,7 @@ const MerchantHeader = () => {
                 <Link to="/merchant/analytics" css={dropdownItemStyles(theme)}>Analytics</Link>
                 <Link to="/merchant/drafts" css={dropdownItemStyles(theme)}>Drafts</Link>
                 <Link to="/merchant/images" css={dropdownItemStyles(theme)}>Images</Link>
-                <Link to="/merchant/inventory" css={dropdownItemStyles(theme)}>Inventory</Link> {/* New Link */}
+                <Link to="/merchant/inventory" css={dropdownItemStyles(theme)}>Inventory</Link>
                 <Link to="/merchant/maps" css={dropdownItemStyles(theme)}>Maps</Link>
                 <Link to="/merchant/performance-metrics" css={dropdownItemStyles(theme)}>Performance Metrics</Link>
                 <Link to="/merchant/preview" css={dropdownItemStyles(theme)}>Preview</Link>

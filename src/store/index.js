@@ -1,4 +1,3 @@
-// src/store/index.js
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/authSlice';
 import socketReducer from '../features/socket/socketSlice';
@@ -15,7 +14,8 @@ import merchantPerformanceMetricsReducer from '../features/merchant/merchantPerf
 import merchantPreviewReducer from '../features/merchant/merchantPreviewSlice';
 import branchReducer from '../features/merchant/branch/branchSlice';
 import productReducer from '../features/merchant/productSlice';
-import inventoryReducer from '../features/merchant/inventorySlice'; // Add this
+import inventoryReducer from '../features/merchant/inventorySlice';
+import reservationReducer from '../features/merchant/reservation/reservationSlice'; // Add this
 
 const store = configureStore({
   reducer: {
@@ -34,7 +34,8 @@ const store = configureStore({
     merchantPreview: merchantPreviewReducer,
     branch: branchReducer,
     products: productReducer,
-    inventory: inventoryReducer, // Add this
+    inventory: inventoryReducer,
+    reservation: reservationReducer, // Add this
   },
 });
 

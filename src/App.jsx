@@ -32,7 +32,8 @@ import MerchantPerformanceMetrics from './pages/merchant/MerchantPerformanceMetr
 import MerchantPreview from './pages/merchant/MerchantPreview';
 import BranchManagement from './pages/merchant/BranchManagement';
 import Products from './pages/merchant/Products';
-import Inventory from './pages/merchant/Inventory'; // Add this
+import Inventory from './pages/merchant/Inventory';
+import Reservations from './pages/merchant/Reservations'; // Add this
 
 const queryClient = new QueryClient();
 
@@ -40,10 +41,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => (
   <div role="alert" style={{ padding: '20px', textAlign: 'center' }}>
     <h2>Something went wrong</h2>
     <pre style={{ color: 'red' }}>{error.message}</pre>
-    <button
-      onClick={resetErrorBoundary}
-      style={{ padding: '10px 20px', marginTop: '10px' }}
-    >
+    <button onClick={resetErrorBoundary} style={{ padding: '10px 20px', marginTop: '10px' }}>
       Try Again
     </button>
   </div>
@@ -87,155 +85,83 @@ export default function App() {
                 {/* Merchant Routes */}
                 <Route
                   path="/merchant/dashboard"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <MerchantDashboard />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><MerchantDashboard /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/profile"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <MerchantProfile />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><MerchantProfile /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/profile/edit"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <EditMerchantProfile />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><EditMerchantProfile /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/business-hours"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <BusinessHours />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><BusinessHours /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/delivery-settings"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <DeliverySettings />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><DeliverySettings /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/branches"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Branches />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Branches /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/branch-management"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <BranchManagement />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><BranchManagement /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/banners"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Banners />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Banners /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/activity-log"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <ActivityLog />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><ActivityLog /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/analytics"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Analytics />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Analytics /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/drafts"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Drafts />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Drafts /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/images"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Images />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Images /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/inventory"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Inventory />
-                    </ProtectedRoute>
-                  }
-                /> {/* Add this */}
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Inventory /></ProtectedRoute>}
+                />
                 <Route
                   path="/merchant/maps"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Maps />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Maps /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/2fa"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Merchant2FA />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Merchant2FA /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/password"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <MerchantPassword />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><MerchantPassword /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/performance-metrics"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <MerchantPerformanceMetrics />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><MerchantPerformanceMetrics /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/preview"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <MerchantPreview />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><MerchantPreview /></ProtectedRoute>}
                 />
                 <Route
                   path="/merchant/products"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <Products />
-                    </ProtectedRoute>
-                  }
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Products /></ProtectedRoute>}
+                />
+                <Route
+                  path="/merchant/reservations"
+                  element={<ProtectedRoute allowedRoles={['merchant']}><Reservations /></ProtectedRoute>}
                 />
 
                 {/* Catch-all Route */}
