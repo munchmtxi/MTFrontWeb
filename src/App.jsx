@@ -35,8 +35,11 @@ import Products from './pages/merchant/Products';
 import Inventory from './pages/merchant/Inventory';
 import Reservations from './pages/merchant/Reservations';
 import StaffDashboard from './pages/staff/StaffDashboard';
-import StaffProfile from './pages/staff/StaffProfile'; // Added
+import StaffProfile from './pages/staff/StaffProfile';
 import DriverDashboard from './pages/driver/DriverDashboard';
+import DriverProfile from './pages/driver/DriverProfile'; // New
+import EditDriverProfile from './pages/driver/EditDriverProfile'; // New
+import DriverPassword from './pages/driver/DriverPassword'; // New
 import AdminDashboard from './pages/admin/AdminDashboard';
 
 const queryClient = new QueryClient();
@@ -182,6 +185,18 @@ export default function App() {
                 <Route
                   path="/driver/dashboard"
                   element={<ProtectedRoute allowedRoles={['driver']}><DriverDashboard /></ProtectedRoute>}
+                />
+                <Route
+                  path="/driver/profile"
+                  element={<ProtectedRoute allowedRoles={['driver']}><DriverProfile /></ProtectedRoute>}
+                />
+                <Route
+                  path="/driver/profile/edit"
+                  element={<ProtectedRoute allowedRoles={['driver']}><EditDriverProfile /></ProtectedRoute>}
+                />
+                <Route
+                  path="/driver/profile/password"
+                  element={<ProtectedRoute allowedRoles={['driver']}><DriverPassword /></ProtectedRoute>}
                 />
 
                 {/* Admin Routes */}

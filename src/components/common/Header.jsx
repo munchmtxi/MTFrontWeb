@@ -6,10 +6,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '@/features/auth/authThunks';
 import { staffLogin } from '@/features/auth/staffAuthThunks';
+import { driverLogin } from '@/features/auth/driverAuthThunks'; // Add driver thunk
 import { v4 as uuidv4 } from 'uuid';
-import store from '@/store'; // Import store for direct state access
+import store from '@/store';
 
-// Styles
+// Styles (unchanged, kept for completeness)
 const headerStyles = (theme) => css`
   position: sticky;
   top: 0;
@@ -156,7 +157,7 @@ const errorStyles = (theme) => css`
   text-align: center;
 `;
 
-// Motion Variants
+// Motion Variants (unchanged)
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
@@ -243,12 +244,24 @@ const Header = () => {
     const deviceType = 'desktop';
     try {
       let result;
-      if (role === 'merchant') {
-        const credentials = { email, password, deviceId, deviceType };
-        result = await dispatch(login(credentials)).unwrap();
-      } else {
-        const credentials = { email, password };
-        result = await dispatch(staffLogin(credentials)).unwrap();
+      switch (role) {
+        case 'merchant':
+          result = await dispatch(login({ email, password, deviceId, deviceType })).unwrap();
+          break;
+        case 'staff':
+          result = await dispatch(staffLogin({ email, password })).unwrap();
+          break;
+        case 'driver':
+          result = await dispatch(driverLogin({ email, password, deviceId, deviceType })).unwrap();
+          break;
+        case 'admin':
+          // Assuming admin uses staffLogin for now; adjust if there's a separate admin thunk
+          result = await dispatch(staffLogin({ email, password })).unwrap();
+          break;
+        default:
+          // Default to customer login (adjust if you have a customer-specific thunk)
+          result = await dispatch(login({ email, password, deviceId, deviceType })).unwrap();
+          break;
       }
       console.log('Login result:', result);
 
@@ -279,7 +292,7 @@ const Header = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setLoginError(error.message || 'Login failed');
+      setLoginError(error.message || `${role.charAt(0).toUpperCase() + role.slice(1)} login failed`);
     } finally {
       setIsLoading(false);
     }

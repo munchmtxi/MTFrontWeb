@@ -2,10 +2,9 @@
 import React from 'react';
 import { css, useTheme } from '@emotion/react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { logout } from '@/features/auth/authSlice'; // Import logout action from authSlice
+import { useNavigate, Link } from 'react-router-dom';
+import { logout } from '@/features/auth/authSlice';
 
-// ----- Styles -----
 const headerStyles = (theme) => css`
   background-color: ${theme.components.roles.driver?.primary || theme.grayScale[700]};
   padding: ${theme.spacing[4]} ${theme.spacing[3]};
@@ -35,24 +34,36 @@ const buttonStyles = (theme) => css`
   }
 `;
 
-// ----- DriverHeader Component -----
+const linkStyles = (theme) => css`
+  color: #ffffff;
+  text-decoration: none;
+  font-size: ${theme.typography.fontSizes.sm};
+  margin-right: ${theme.spacing[4]};
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const DriverHeader = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
-    localStorage.removeItem('token'); // Clear token from localStorage
+    dispatch(logout());
+    localStorage.removeItem('token');
     navigate('/');
   };
 
   return (
     <header css={headerStyles(theme)}>
       <div css={titleStyles(theme)}>Driver Dashboard</div>
-      <button onClick={handleLogout} css={buttonStyles(theme)}>
-        Logout
-      </button>
+      <div>
+        <Link to="/driver/profile" css={linkStyles(theme)}>Profile</Link>
+        <button onClick={handleLogout} css={buttonStyles(theme)}>
+          Logout
+        </button>
+      </div>
     </header>
   );
 };
