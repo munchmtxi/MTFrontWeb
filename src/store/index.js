@@ -16,6 +16,7 @@ import branchReducer from '../features/merchant/branch/branchSlice';
 import productReducer from '../features/merchant/productSlice';
 import inventoryReducer from '../features/merchant/inventorySlice';
 import reservationReducer from '../features/merchant/reservation/reservationSlice'; // Add this
+import staffProfileReducer from '../features/staff/profile/staffProfileSlice';
 
 const store = configureStore({
   reducer: {
@@ -35,7 +36,8 @@ const store = configureStore({
     branch: branchReducer,
     products: productReducer,
     inventory: inventoryReducer,
-    reservation: reservationReducer, // Add this
+    reservation: reservationReducer, 
+    staffProfile: staffProfileReducer,
   },
 });
 

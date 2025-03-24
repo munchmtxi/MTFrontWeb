@@ -33,7 +33,11 @@ import MerchantPreview from './pages/merchant/MerchantPreview';
 import BranchManagement from './pages/merchant/BranchManagement';
 import Products from './pages/merchant/Products';
 import Inventory from './pages/merchant/Inventory';
-import Reservations from './pages/merchant/Reservations'; // Add this
+import Reservations from './pages/merchant/Reservations';
+import StaffDashboard from './pages/staff/StaffDashboard';
+import StaffProfile from './pages/staff/StaffProfile'; // Added
+import DriverDashboard from './pages/driver/DriverDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -162,6 +166,28 @@ export default function App() {
                 <Route
                   path="/merchant/reservations"
                   element={<ProtectedRoute allowedRoles={['merchant']}><Reservations /></ProtectedRoute>}
+                />
+
+                {/* Staff Routes */}
+                <Route
+                  path="/staff/dashboard"
+                  element={<ProtectedRoute allowedRoles={['staff']}><StaffDashboard /></ProtectedRoute>}
+                />
+                <Route
+                  path="/staff/profile"
+                  element={<ProtectedRoute allowedRoles={['staff']}><StaffProfile /></ProtectedRoute>}
+                />
+
+                {/* Driver Routes */}
+                <Route
+                  path="/driver/dashboard"
+                  element={<ProtectedRoute allowedRoles={['driver']}><DriverDashboard /></ProtectedRoute>}
+                />
+
+                {/* Admin Routes */}
+                <Route
+                  path="/admin/dashboard"
+                  element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>}
                 />
 
                 {/* Catch-all Route */}
