@@ -37,10 +37,15 @@ import Reservations from './pages/merchant/Reservations';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import StaffProfile from './pages/staff/StaffProfile';
 import DriverDashboard from './pages/driver/DriverDashboard';
-import DriverProfile from './pages/driver/DriverProfile'; // New
-import EditDriverProfile from './pages/driver/EditDriverProfile'; // New
-import DriverPassword from './pages/driver/DriverPassword'; // New
+import DriverProfile from './pages/driver/DriverProfile';
+import EditDriverProfile from './pages/driver/EditDriverProfile';
+import DriverPassword from './pages/driver/DriverPassword';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import CustomerDashboard from './pages/customer/CustomerDashboard'; // New
+import CustomerProfile from './pages/customer/CustomerProfile'; // New
+import EditCustomerProfile from './pages/customer/EditCustomerProfile'; // New
+import CustomerPassword from './pages/customer/CustomerPassword'; // New
+import CustomerPayment from './pages/customer/CustomerPayment'; // New
 
 const queryClient = new QueryClient();
 
@@ -197,6 +202,28 @@ export default function App() {
                 <Route
                   path="/driver/profile/password"
                   element={<ProtectedRoute allowedRoles={['driver']}><DriverPassword /></ProtectedRoute>}
+                />
+
+                {/* Customer Routes */}
+                <Route
+                  path="/customer/dashboard"
+                  element={<ProtectedRoute allowedRoles={['customer']}><CustomerDashboard /></ProtectedRoute>}
+                />
+                <Route
+                  path="/customer/profile"
+                  element={<ProtectedRoute allowedRoles={['customer']}><CustomerProfile /></ProtectedRoute>}
+                />
+                <Route
+                  path="/customer/profile/edit"
+                  element={<ProtectedRoute allowedRoles={['customer']}><EditCustomerProfile /></ProtectedRoute>}
+                />
+                <Route
+                  path="/customer/profile/password"
+                  element={<ProtectedRoute allowedRoles={['customer']}><CustomerPassword /></ProtectedRoute>}
+                />
+                <Route
+                  path="/customer/profile/payment"
+                  element={<ProtectedRoute allowedRoles={['customer']}><CustomerPayment /></ProtectedRoute>}
                 />
 
                 {/* Admin Routes */}

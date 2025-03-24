@@ -1,7 +1,8 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '../features/auth/authSlice';
 import { staffLogin } from '../features/auth/staffAuthThunks';
-import { driverLogin } from '../features/auth/driverAuthThunks'; // Add driver thunk
+import { driverLogin } from '../features/auth/driverAuthThunks';
+import { customerLogin } from '../features/auth/customerAuthThunks'; // New
 
 const useAuth = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,15 @@ const useAuth = () => {
     }
   };
 
+  const loginCustomer = async (credentials) => {
+    try {
+      const result = await dispatch(customerLogin(credentials)).unwrap();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const logout = () => {
     dispatch(setUser(null));
     localStorage.removeItem('token');
@@ -40,7 +50,8 @@ const useAuth = () => {
     isAuthenticated, 
     login, 
     loginStaff, 
-    loginDriver, // New driver login method
+    loginDriver,
+    loginCustomer,
     logout 
   };
 };

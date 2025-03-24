@@ -6,7 +6,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '@/features/auth/authThunks';
 import { staffLogin } from '@/features/auth/staffAuthThunks';
-import { driverLogin } from '@/features/auth/driverAuthThunks'; // Add driver thunk
+import { driverLogin } from '@/features/auth/driverAuthThunks';
+import { customerLogin } from '@/features/auth/customerAuthThunks'; // Add customer thunk
 import { v4 as uuidv4 } from 'uuid';
 import store from '@/store';
 
@@ -245,6 +246,13 @@ const Header = () => {
     try {
       let result;
       switch (role) {
+        case 'customer':
+          result = await dispatch(customerLogin({ 
+            email, 
+            password, 
+            deviceInfo: { deviceId, deviceType } 
+          })).unwrap();
+          break;
         case 'merchant':
           result = await dispatch(login({ email, password, deviceId, deviceType })).unwrap();
           break;
@@ -259,9 +267,7 @@ const Header = () => {
           result = await dispatch(staffLogin({ email, password })).unwrap();
           break;
         default:
-          // Default to customer login (adjust if you have a customer-specific thunk)
-          result = await dispatch(login({ email, password, deviceId, deviceType })).unwrap();
-          break;
+          throw new Error('Unknown role');
       }
       console.log('Login result:', result);
 
@@ -275,6 +281,9 @@ const Header = () => {
 
       const userRole = updatedState.user?.role || result.user.role;
       switch (userRole) {
+        case 'customer':
+          navigate('/customer/dashboard');
+          break;
         case 'merchant':
           navigate('/merchant/dashboard');
           break;
@@ -354,7 +363,7 @@ const Header = () => {
 
       {loginModalOpen && (
         <ModalForm
-          title="Login"
+          title="Customer Login"
           onSubmit={(e, email, password) => handleLogin(e, email, password, 'customer')}
           onClose={() => {
             setLoginModalOpen(false);
