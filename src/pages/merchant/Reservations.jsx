@@ -1,197 +1,128 @@
 /** @jsxImportSource @emotion/react */
-import React, { useEffect, useState } from 'react';
-import { css, useTheme } from '@emotion/react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchBookings, createBooking } from '../../features/merchant/reservation/reservationThunks';
+import React, { useEffect, useState, useRef } from 'react';
+import { css } from '@emotion/react';
+import { useParams } from 'react-router-dom';
+import axios from '../../api/axios';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
-const reservationsStyles = (theme) => css`
-  padding: ${theme.spacing[6]};
-  max-width: ${theme.breakpoints['2xl']};
+const containerStyle = css`
+  padding: 20px;
+  max-width: 1000px;
   margin: 0 auto;
 `;
 
-const tableStyles = (theme) => css`
-  width: 100%;
-  border-collapse: collapse;
-  background-color: ${theme.components.card.baseStyle.backgroundColor};
-  border-radius: ${theme.radii.lg};
-  box-shadow: ${theme.shadows.md};
+const reservationListStyle = css`
+  display: grid;
+  gap: 15px;
 `;
 
-const thStyles = (theme) => css`
-  padding: ${theme.spacing[3]};
-  text-align: left;
-  background-color: ${theme.greenScale[700]};
-  color: #ffffff;
-  font-weight: ${theme.typography.fontWeights.semibold};
+const reservationItemStyle = css`
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
 `;
 
-const tdStyles = (theme) => css`
-  padding: ${theme.spacing[3]};
-  border-bottom: 1px solid ${theme.grayScale[800]};
+const buttonStyle = css`
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: #c82333;
+  }
 `;
 
-const formStyles = (theme) => css`
-  margin-bottom: ${theme.spacing[6]};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing[2]};
-  max-width: 400px;
+const errorStyle = css`
+  color: red;
+  text-align: center;
 `;
 
-const inputStyles = (theme) => css`
-  ${theme.components.input.baseStyle};
-  width: 100%;
-`;
+export default function Reservations() {
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { branchId } = useParams();
+  const hasFetched = useRef(false); // Prevent duplicate fetches
 
-const buttonStyles = (theme) => css`
-  ${theme.components.button.baseStyle};
-  ${theme.components.button.variants.primary};
-  ${theme.components.button.sizes.md};
-`;
-
-const Reservations = () => {
-  const theme = useTheme();
-  const dispatch = useDispatch();
-  const { bookings, loading, error } = useSelector((state) => state.reservation);
-  const { user } = useSelector((state) => state.auth);
-  const [formData, setFormData] = useState({
-    customer_id: user?.id || '',
-    booking_date: '',
-    booking_time: '',
-    guest_count: '',
-    special_requests: '',
-    seating_preference: 'no_preference',
-    occasion: '',
-    source: 'app',
-  });
+  const fetchReservations = async (retries = 3, delay = 1000) => {
+    if (!branchId) {
+      setError('No branch ID provided');
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/merchant/reservation/branches/${branchId}/bookings`);
+      setReservations(response.data || []);
+      setLoading(false);
+      hasFetched.current = true; // Mark as fetched
+    } catch (err) {
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return fetchReservations(retries - 1, delay * 2);
+      }
+      setError(err.response?.data?.message || 'Failed to fetch reservations');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchBookings({ branchId: '1' })); // Hardcoded for now
-  }, [dispatch]);
+    if (hasFetched.current) return; // Skip if already fetched
+    fetchReservations();
+  }, [branchId]); // Still depends on branchId, but guarded by hasFetched
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const cancelReservation = async (reservationId) => {
+    try {
+      await axios.delete(`/api/merchant/reservation/branches/${branchId}/bookings/${reservationId}`);
+      setReservations(reservations.filter((r) => r.id !== reservationId));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to cancel reservation');
+    }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(createBooking({
-      branchId: '1', // Hardcoded for now
-      bookingData: {
-        ...formData,
-        guest_count: parseInt(formData.guest_count, 10),
-      },
-    }));
-    setFormData({
-      customer_id: user?.id || '',
-      booking_date: '',
-      booking_time: '',
-      guest_count: '',
-      special_requests: '',
-      seating_preference: 'no_preference',
-      occasion: '',
-      source: 'app',
-    });
-  };
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return <div css={css`color: red;`}>Error: {error}</div>;
 
   return (
-    <div css={reservationsStyles(theme)}>
-      <h1 css={css`font-size: ${theme.typography.fontSizes['3xl']}; margin-bottom: ${theme.spacing[4]};`}>Reservations</h1>
-      
-      {/* Booking Form */}
-      <form css={formStyles(theme)} onSubmit={handleSubmit}>
-        <input
-          css={inputStyles(theme)}
-          type="date"
-          name="booking_date"
-          value={formData.booking_date}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          css={inputStyles(theme)}
-          type="time"
-          name="booking_time"
-          value={formData.booking_time}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          css={inputStyles(theme)}
-          type="number"
-          name="guest_count"
-          value={formData.guest_count}
-          onChange={handleInputChange}
-          min="1"
-          required
-        />
-        <input
-          css={inputStyles(theme)}
-          type="text"
-          name="special_requests"
-          value={formData.special_requests}
-          onChange={handleInputChange}
-          placeholder="Special Requests"
-        />
-        <select
-          css={inputStyles(theme)}
-          name="seating_preference"
-          value={formData.seating_preference}
-          onChange={handleInputChange}
-        >
-          <option value="no_preference">No Preference</option>
-          <option value="indoor">Indoor</option>
-          <option value="outdoor">Outdoor</option>
-          <option value="window">Window</option>
-        </select>
-        <input
-          css={inputStyles(theme)}
-          type="text"
-          name="occasion"
-          value={formData.occasion}
-          onChange={handleInputChange}
-          placeholder="Occasion (e.g., Birthday)"
-        />
-        <button css={buttonStyles(theme)} type="submit">Create Booking</button>
-      </form>
-
-      {/* Bookings Table */}
-      {bookings.length === 0 ? (
-        <p>No reservations found.</p>
+    <div css={containerStyle}>
+      <h2>Reservations for Branch {branchId}</h2>
+      {loading && <LoadingSpinner />}
+      {error && <p css={errorStyle}>{error}</p>}
+      {reservations.length > 0 ? (
+        <div css={reservationListStyle}>
+          {reservations.map((reservation) => (
+            <div key={reservation.id} css={reservationItemStyle}>
+              <p>
+                <strong>Table:</strong> {reservation.table?.table_number || 'N/A'} (Branch:{' '}
+                {reservation.branch_id || 'N/A'})
+              </p>
+              <p>
+                <strong>Date:</strong>{' '}
+                {reservation.booking_date ? new Date(reservation.booking_date).toLocaleDateString() : 'N/A'}
+              </p>
+              <p>
+                <strong>Time:</strong> {reservation.booking_time || 'N/A'}
+              </p>
+              <p>
+                <strong>Guests:</strong> {reservation.guest_count || 'N/A'}
+              </p>
+              <p>
+                <strong>Customer:</strong>{' '}
+                {reservation.customer?.user?.first_name || reservation.customer?.user?.email || 'N/A'}
+              </p>
+              <button
+                css={buttonStyle}
+                onClick={() => cancelReservation(reservation.id)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            </div>
+          ))}
+        </div>
       ) : (
-        <table css={tableStyles(theme)}>
-          <thead>
-            <tr>
-              <th css={thStyles(theme)}>Reference</th>
-              <th css={thStyles(theme)}>Date</th>
-              <th css={thStyles(theme)}>Time</th>
-              <th css={thStyles(theme)}>Guests</th>
-              <th css={thStyles(theme)}>Status</th>
-              <th css={thStyles(theme)}>Requests</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id}>
-                <td css={tdStyles(theme)}>{booking.reference}</td>
-                <td css={tdStyles(theme)}>{booking.booking_date}</td>
-                <td css={tdStyles(theme)}>{booking.booking_time}</td>
-                <td css={tdStyles(theme)}>{booking.guest_count}</td>
-                <td css={tdStyles(theme)}>{booking.status}</td>
-                <td css={tdStyles(theme)}>{booking.special_requests || 'None'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        !loading && <p>No reservations found for this branch.</p>
       )}
     </div>
   );
-};
-
-export default Reservations;
+}

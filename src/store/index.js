@@ -15,8 +15,9 @@ import merchantPreviewReducer from '../features/merchant/merchantPreviewSlice';
 import branchReducer from '../features/merchant/branch/branchSlice';
 import productReducer from '../features/merchant/productSlice';
 import inventoryReducer from '../features/merchant/inventorySlice';
-import reservationReducer from '../features/merchant/reservation/reservationSlice'; // Add this
+import reservationReducer from '../features/merchant/reservation/reservationSlice';
 import staffProfileReducer from '../features/staff/profile/staffProfileSlice';
+import bookingReducer from '../features/customer/bookingSlice'; // Add this
 
 const store = configureStore({
   reducer: {
@@ -36,8 +37,9 @@ const store = configureStore({
     branch: branchReducer,
     products: productReducer,
     inventory: inventoryReducer,
-    reservation: reservationReducer, 
+    reservation: reservationReducer,
     staffProfile: staffProfileReducer,
+    booking: bookingReducer, 
   },
 });
 
