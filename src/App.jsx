@@ -10,6 +10,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import store from './store';
 import { getResponsiveTheme } from './styles/themeResponsive';
 
+// Public Pages
 import Home from './pages/public/Home';
 import Register from './pages/auth/Register';
 import TwoFactorAuth from './pages/auth/TwoFactorAuth';
@@ -17,14 +18,15 @@ import Forbidden from './pages/public/Forbidden';
 import NotFound from './pages/public/NotFound';
 import ServerError from './pages/public/ServerError';
 
+// Merchant Pages
 import MerchantDashboard from './pages/merchant/MerchantDashboard';
 import MerchantProfile from './pages/merchant/MerchantProfile';
 import EditMerchantProfile from './pages/merchant/EditMerchantProfile';
 import BusinessHours from './pages/merchant/BusinessHours';
 import DeliverySettings from './pages/merchant/DeliverySettings';
 import Branches from './pages/merchant/Branches';
+import BranchManagement from './pages/merchant/BranchManagement';
 import Banners from './pages/merchant/Banners';
-import ActivityLog from './pages/merchant/ActivityLog';
 import Analytics from './pages/merchant/Analytics';
 import Drafts from './pages/merchant/Drafts';
 import Images from './pages/merchant/Images';
@@ -32,30 +34,42 @@ import Maps from './pages/merchant/Maps';
 import Merchant2FA from './pages/merchant/Merchant2FA';
 import MerchantPassword from './pages/merchant/MerchantPassword';
 import MerchantPerformanceMetrics from './pages/merchant/MerchantPerformanceMetrics';
-import MerchantPreview from './pages/merchant/MerchantPreview';
-import BranchManagement from './pages/merchant/BranchManagement';
 import Products from './pages/merchant/Products';
 import Inventory from './pages/merchant/Inventory';
 import Reservations from './pages/merchant/Reservations';
+import Orders from './pages/merchant/Orders';
+import Staff from './pages/merchant/Staff';
 
+// Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
 import StaffProfile from './pages/staff/StaffProfile';
 
+// Driver Pages
 import DriverDashboard from './pages/driver/DriverDashboard';
 import DriverProfile from './pages/driver/DriverProfile';
 import EditDriverProfile from './pages/driver/EditDriverProfile';
 import DriverPassword from './pages/driver/DriverPassword';
 
-import AdminDashboard from './pages/admin/AdminDashboard';
-
+// Customer Pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerProfile from './pages/customer/CustomerProfile';
 import EditCustomerProfile from './pages/customer/EditCustomerProfile';
 import CustomerPassword from './pages/customer/CustomerPassword';
 import CustomerPayment from './pages/customer/CustomerPayment';
-import TableBookings from './pages/customer/TableBookings'; // New import
+import TableBookings from './pages/customer/TableBookings';
+import Rides from './pages/customer/Rides'; // New import
 
-const queryClient = new QueryClient();
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
   <div role="alert" style={{ padding: '20px', textAlign: 'center' }}>
@@ -78,6 +92,7 @@ ErrorFallback.propTypes = {
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { token, user } = useSelector((state) => state.auth);
   const role = user?.role;
+
   if (!token) return <Navigate to="/" replace />;
   if (allowedRoles && !allowedRoles.includes(role))
     return <Navigate to="/forbidden" replace />;
@@ -172,14 +187,6 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/merchant/activity-log"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <ActivityLog />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
                   path="/merchant/analytics"
                   element={
                     <ProtectedRoute allowedRoles={['merchant']}>
@@ -244,14 +251,6 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/merchant/preview"
-                  element={
-                    <ProtectedRoute allowedRoles={['merchant']}>
-                      <MerchantPreview />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
                   path="/merchant/products"
                   element={
                     <ProtectedRoute allowedRoles={['merchant']}>
@@ -264,6 +263,22 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['merchant']}>
                       <Reservations />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/merchant/orders"
+                  element={
+                    <ProtectedRoute allowedRoles={['merchant']}>
+                      <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/merchant/staff"
+                  element={
+                    <ProtectedRoute allowedRoles={['merchant']}>
+                      <Staff />
                     </ProtectedRoute>
                   }
                 />
@@ -366,6 +381,14 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['customer']}>
                       <TableBookings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/rides"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <Rides />
                     </ProtectedRoute>
                   }
                 />

@@ -13,7 +13,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'), // Add this
+      '@': path.resolve(__dirname, 'src'), // Maps '@' to 'src/'
+      '@hooks': path.resolve(__dirname, 'src/hooks'), // Maps '@hooks' to 'src/hooks/'
     },
   },
   server: {

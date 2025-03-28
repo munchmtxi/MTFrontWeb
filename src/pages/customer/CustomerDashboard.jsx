@@ -4,118 +4,108 @@ import { css } from '@emotion/react';
 import { Navigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
-  ShoppingBag,
-  CreditCard,
-  User,
   Bell,
-  Calendar, // Added for TableBookings link
+  Calendar,
+  Car,
+  Mail,
+  MapPin,
+  Settings,
+  ShoppingCart,
+  User,
+  Utensils,
 } from 'lucide-react';
-import CustomerHeader from '../../components/customer/CustomerHeader';
+import CustomerHeader from "../../components/customer/CustomerHeader";
 
-// Styles using Emotion (unchanged)
+// Styles
 const dashboardStyles = css`
   min-height: 100vh;
-  background: #1a202c; /* Dark blue-grey background */
-  color: #d1d5db; /* Light grey text */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
   display: flex;
-`;
-
-const customerHeaderStyles = css`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(180deg, #111827 50%, transparent 100%);
-  padding: 10px 20px;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const sidebarStyles = css`
   width: 80px;
-  background: #111827; /* Black sidebar */
+  background: #111;
   padding: 20px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  z-index: 1;
+  gap: 25px;
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 0;
+  }
+`;
+
+const iconWrapperStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #9400d3;
+  border-radius: 50%;
+  transition: border-color 0.3s ease;
+`;
+
+const iconStyles = css`
+  color: #888;
+  transition: color 0.3s ease;
 `;
 
 const sidebarLinkStyles = css`
-  color: #6b7280; /* Grey */
-  transition: color 0.3s ease;
-  &:hover, &.active {
-    color: #fedc01; /* Yellow on hover/active */
+  display: block;
+  &.active .icon-wrapper {
+    border-color: #1dbf1d;
+  }
+  &.active .icon {
+    color: #1dbf1d;
+  }
+  &:hover .icon-wrapper {
+    border-color: #1dbf1d;
+  }
+  &:hover .icon {
+    color: #1dbf1d;
   }
 `;
 
 const mainContentStyles = css`
   flex: 1;
   padding: 20px;
-  padding-top: 60px; /* Space for the CustomerHeader */
+  padding-top: 80px;
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const headerStyles = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #111827; /* Black header */
-  padding: 15px 20px;
+  background: #111;
+  padding: 10px 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-`;
-
-const headerLeftStyles = css`
-  display: flex;
-  align-items: center;
-  gap: 10px;
 `;
 
 const headerRightStyles = css`
   display: flex;
   align-items: center;
-  gap: 15px;
-  & svg {
-    color: #d1d5db;
-  }
-`;
-
-const userStyles = css`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #d1d5db;
-  & img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-  }
-`;
-
-const actionsStyles = css`
-  display: flex;
-  justify-content: center;
   gap: 20px;
-  margin-bottom: 20px;
-`;
-
-const actionBtnStyles = css`
-  padding: 10px 20px;
-  background: #2d3748; /* Dark grey */
-  color: #d1d5db;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  &:hover, &.active {
-    background: #fedc01; /* Yellow */
-    color: #111827;
+  & svg {
+    color: #fff;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    &:hover {
+      color: #1dbf1d;
+    }
   }
 `;
 
@@ -126,16 +116,21 @@ const contentStyles = css`
 `;
 
 const cardStyles = css`
-  background: #2d3748; /* Dark grey cards */
-  border-radius: 10px;
+  background: #222;
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+  }
 `;
 
 const cardHeadingStyles = css`
   font-size: 18px;
   font-weight: 600;
-  color: #fedc01; /* Yellow */
+  color: #1dbf1d;
   margin-bottom: 15px;
   display: flex;
   align-items: center;
@@ -144,169 +139,93 @@ const cardHeadingStyles = css`
 
 const cardTextStyles = css`
   font-size: 14px;
-  color: #d1d5db;
+  color: #ccc;
+  margin: 5px 0;
 `;
 
-const orderItemStyles = css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: #1f2937; /* Slightly darker grey */
-  border-radius: 6px;
-  margin-bottom: 10px;
+const buttonStyles = css`
+  padding: 8px 16px;
+  background: #1dbf1d;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+  &:hover {
+    background: #17a317;
+    transform: scale(1.05);
+  }
 `;
 
-const paymentItemStyles = css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: #1f2937;
-  border-radius: 6px;
-  margin-bottom: 10px;
-`;
-
-const profileCardStyles = css`
-  grid-column: span 1;
-`;
-
-const itemTextStyles = css`
-  font-weight: 500;
-  color: #ffffff;
-`;
-
-const itemSubtextStyles = css`
-  font-size: 12px;
-  color: #6b7280; /* Grey */
-`;
-
-const statusStyles = (status) => css`
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: capitalize;
-  background-color: #2d3748;
-  color: ${status === 'delivered' ? '#d1d5db' : status === 'shipped' ? '#1dbf1d' : '#fedc01'};
-`;
-
-// CustomerDashboard Component
 const CustomerDashboard = () => {
   const { user, token } = useSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('profile');
 
-  // Sample data for customer
-  const recentOrders = [
-    { id: 'ORD-7291', items: 3, total: '$42.50', status: 'Shipped', date: 'Mar 22, 2025' },
-    { id: 'ORD-7290', items: 1, total: '$18.99', status: 'Delivered', date: 'Mar 20, 2025' },
-  ];
-
-  const paymentMethods = [
-    { id: 'PM-001', type: 'Visa', lastFour: '1234', expiry: '12/26' },
-    { id: 'PM-002', type: 'MasterCard', lastFour: '5678', expiry: '09/25' },
-  ];
-
-  const profile = {
-    name: user?.email,
-    role: 'Customer',
-    joined: 'Feb 2023',
-    orders: '15 this year',
-  };
-
-  // Redirect if not authenticated or not a customer
   if (!token || user?.role !== 'customer') {
     return <Navigate to="/" replace />;
   }
 
-  // Render content based on active tab
+  const profile = {
+    id: user?.id,
+    first_name: user?.first_name || 'John',
+    last_name: user?.last_name || 'Doe',
+    email: user?.email || 'john.doe@example.com',
+    phone: user?.phone || '+1234567890',
+    country: user?.country || 'USA',
+    avatar_url: user?.avatar_url || 'https://via.placeholder.com/40x40', // Fixed URL
+  };
+
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return (
-          <div css={contentStyles}>
-            {/* Recent Orders Card */}
-            <div css={cardStyles}>
-              <h3 css={cardHeadingStyles}><ShoppingBag size={20} /> Recent Orders</h3>
-              {recentOrders.map((order) => (
-                <div key={order.id} css={orderItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{order.id}</p>
-                    <p css={itemSubtextStyles}>{order.items} items - {order.total} - {order.date}</p>
-                  </div>
-                  <div css={statusStyles(order.status.toLowerCase())}>{order.status}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Payment Methods Card */}
-            <div css={cardStyles}>
-              <h3 css={cardHeadingStyles}><CreditCard size={20} /> Payment Methods</h3>
-              {paymentMethods.map((payment) => (
-                <div key={payment.id} css={paymentItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{payment.type} ending in {payment.lastFour}</p>
-                    <p css={itemSubtextStyles}>Expires: {payment.expiry}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Profile Card */}
-            <div css={[cardStyles, profileCardStyles]}>
-              <h3 css={cardHeadingStyles}><User size={20} /> Profile</h3>
-              <p css={cardTextStyles}>Name: {profile.name}</p>
-              <p css={cardTextStyles}>Role: {profile.role}</p>
-              <p css={cardTextStyles}>Joined: {profile.joined}</p>
-              <p css={cardTextStyles}>Orders: {profile.orders}</p>
-            </div>
-          </div>
-        );
-      case 'orders':
-        return (
-          <div css={contentStyles}>
-            <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-              <h3 css={cardHeadingStyles}><ShoppingBag size={20} /> All Orders</h3>
-              {recentOrders.map((order) => (
-                <div key={order.id} css={orderItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{order.id}</p>
-                    <p css={itemSubtextStyles}>{order.items} items - {order.total} - {order.date}</p>
-                  </div>
-                  <div css={statusStyles(order.status.toLowerCase())}>{order.status}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'payments':
-        return (
-          <div css={contentStyles}>
-            <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-              <h3 css={cardHeadingStyles}><CreditCard size={20} /> All Payment Methods</h3>
-              {paymentMethods.map((payment) => (
-                <div key={payment.id} css={paymentItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{payment.type} ending in {payment.lastFour}</p>
-                    <p css={itemSubtextStyles}>Expires: {payment.expiry}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
       case 'profile':
         return (
           <div css={contentStyles}>
             <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-              <h3 css={cardHeadingStyles}><User size={20} /> Profile Details</h3>
-              <p css={cardTextStyles}>Name: {profile.name}</p>
-              <p css={cardTextStyles}>Role: {profile.role}</p>
-              <p css={cardTextStyles}>Joined: {profile.joined}</p>
-              <p css={cardTextStyles}>Orders: {profile.orders}</p>
+              <h3 css={cardHeadingStyles}>
+                <User size={20} /> Profile Details
+              </h3>
+              <div
+                css={css`
+                  display: flex;
+                  align-items: center;
+                  gap: 20px;
+                  margin-bottom: 20px;
+                `}
+              >
+                <img
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  css={css`
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    border: 2px solid #1dbf1d;
+                  `}
+                />
+                <div>
+                  <p css={cardTextStyles}>
+                    Name: {profile.first_name} {profile.last_name}
+                  </p>
+                  <p css={cardTextStyles}>Email: {profile.email}</p>
+                  <p css={cardTextStyles}>Phone: {profile.phone}</p>
+                  <p css={cardTextStyles}>Country: {profile.country}</p>
+                </div>
+              </div>
+              <button css={buttonStyles} onClick={() => console.log('Edit Profile')}>
+                Edit Profile
+              </button>
             </div>
           </div>
         );
+      case 'order':
+        return <div css={cardStyles}>Order Food Content</div>;
+      // Removed 'taxi' case since it’s now a separate route
+      case 'checkin':
+        return <div css={cardStyles}>Check In Content</div>;
+      case 'settings':
+        return <div css={cardStyles}>Settings Content</div>;
+      case 'contact':
+        return <div css={cardStyles}>Contact Content</div>;
       default:
         return <div css={cardTextStyles}>Select a section to view its content</div>;
     }
@@ -314,61 +233,92 @@ const CustomerDashboard = () => {
 
   return (
     <div css={dashboardStyles}>
-      {/* CustomerHeader */}
-      <div css={customerHeaderStyles}>
+      <div
+        css={css`
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          background: linear-gradient(180deg, #000 50%, transparent 100%);
+          padding: 5px 10px;
+          z-index: 2;
+        `}
+      >
         <CustomerHeader />
       </div>
-
-      {/* Sidebar */}
       <div css={sidebarStyles}>
-        <Link to="#" onClick={() => setActiveTab('overview')} css={sidebarLinkStyles} className={activeTab === 'overview' ? 'active' : ''}>
-          <ShoppingBag size={24} />
-        </Link>
-        <Link to="#" onClick={() => setActiveTab('orders')} css={sidebarLinkStyles} className={activeTab === 'orders' ? 'active' : ''}>
-          <ShoppingBag size={24} />
-        </Link>
-        <Link to="#" onClick={() => setActiveTab('payments')} css={sidebarLinkStyles} className={activeTab === 'payments' ? 'active' : ''}>
-          <CreditCard size={24} />
-        </Link>
-        <Link to="#" onClick={() => setActiveTab('profile')} css={sidebarLinkStyles} className={activeTab === 'profile' ? 'active' : ''}>
-          <User size={24} />
-        </Link>
-        {/* New Link to TableBookings */}
         <Link to="/customer/table-bookings" css={sidebarLinkStyles}>
-          <Calendar size={24} />
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <Calendar size={24} css={iconStyles} className="icon" />
+          </div>
+        </Link>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('order')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'order' ? 'active' : ''}
+        >
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <Utensils size={24} css={iconStyles} className="icon" />
+          </div>
+        </Link>
+        <Link
+          to="/customer/rides"
+          css={sidebarLinkStyles}
+          className={activeTab === 'taxi' ? 'active' : ''} // Kept for visual feedback
+        >
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <Car size={24} css={iconStyles} className="icon" />
+          </div>
+        </Link>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('checkin')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'checkin' ? 'active' : ''}
+        >
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <MapPin size={24} css={iconStyles} className="icon" />
+          </div>
+        </Link>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('settings')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'settings' ? 'active' : ''}
+        >
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <Settings size={24} css={iconStyles} className="icon" />
+          </div>
+        </Link>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('contact')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'contact' ? 'active' : ''}
+        >
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <Mail size={24} css={iconStyles} className="icon" />
+          </div>
         </Link>
       </div>
-
-      {/* Main Content */}
       <div css={mainContentStyles}>
-        {/* Header */}
         <div css={headerStyles}>
-          <div css={headerLeftStyles}>
-            <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#fedc01' }}>Customer Dashboard</h1>
-          </div>
+          <h1
+            css={css`
+              font-size: 18px;
+              font-weight: 600;
+              color: #1dbf1d;
+            `}
+          >
+            Customer Dashboard
+          </h1>
           <div css={headerRightStyles}>
-            <Bell size={20} />
-            <div css={userStyles}>
-              <img src="https://via.placeholder.com/32" alt="User" />
-              <span>{user?.email}</span>
-            </div>
+            <Bell size={20} onClick={() => console.log('Notifications clicked')} />
+            <ShoppingCart size={20} onClick={() => console.log('Shopping Cart clicked')} />
+            <User size={20} onClick={() => setActiveTab('profile')} />
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div css={actionsStyles}>
-          <div onClick={() => setActiveTab('orders')} css={actionBtnStyles}>
-            <ShoppingBag size={16} /> View Orders
-          </div>
-          <div onClick={() => setActiveTab('payments')} css={actionBtnStyles}>
-            <CreditCard size={16} /> Manage Payments
-          </div>
-          <div onClick={() => setActiveTab('profile')} css={actionBtnStyles}>
-            <User size={16} /> View Profile
-          </div>
-        </div>
-
-        {/* Content */}
         {renderContent()}
       </div>
     </div>

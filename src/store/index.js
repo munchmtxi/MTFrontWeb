@@ -17,7 +17,8 @@ import productReducer from '../features/merchant/productSlice';
 import inventoryReducer from '../features/merchant/inventorySlice';
 import reservationReducer from '../features/merchant/reservation/reservationSlice';
 import staffProfileReducer from '../features/staff/profile/staffProfileSlice';
-import bookingReducer from '../features/customer/bookingSlice'; // Add this
+import bookingReducer from '../features/customer/bookingSlice'; 
+import rideReducer from '../features/customer/rideSlice';
 
 const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ const store = configureStore({
     reservation: reservationReducer,
     staffProfile: staffProfileReducer,
     booking: bookingReducer, 
+    ride: rideReducer,
   },
 });
 
