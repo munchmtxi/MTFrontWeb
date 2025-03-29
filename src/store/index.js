@@ -17,8 +17,11 @@ import productReducer from '../features/merchant/productSlice';
 import inventoryReducer from '../features/merchant/inventorySlice';
 import reservationReducer from '../features/merchant/reservation/reservationSlice';
 import staffProfileReducer from '../features/staff/profile/staffProfileSlice';
-import bookingReducer from '../features/customer/bookingSlice'; 
+import bookingReducer from '../features/customer/bookingSlice';
 import rideReducer from '../features/customer/rideSlice';
+import cartReducer from '../features/customer/cartSlice'; 
+import menuReducer from '../features/customer/menuSlice';
+import orderReducer from '../features/customer/orderSlice';
 
 const store = configureStore({
   reducer: {
@@ -40,8 +43,11 @@ const store = configureStore({
     inventory: inventoryReducer,
     reservation: reservationReducer,
     staffProfile: staffProfileReducer,
-    booking: bookingReducer, 
+    booking: bookingReducer,
     ride: rideReducer,
+    cart: cartReducer, 
+    menu: menuReducer,
+    order: orderReducer,
   },
 });
 

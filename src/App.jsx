@@ -1,66 +1,71 @@
 /** @jsxImportSource @emotion/react */
-import React from 'react';
-import PropTypes from 'prop-types';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Provider, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@emotion/react';
 import { ErrorBoundary } from 'react-error-boundary';
+import PropTypes from 'prop-types';
 
-import store from './store';
-import { getResponsiveTheme } from './styles/themeResponsive';
+import store from '@/store'; // Absolute import
+import { getResponsiveTheme } from '@/styles/themeResponsive'; // Absolute import
 
 // Public Pages
-import Home from './pages/public/Home';
-import Register from './pages/auth/Register';
-import TwoFactorAuth from './pages/auth/TwoFactorAuth';
-import Forbidden from './pages/public/Forbidden';
-import NotFound from './pages/public/NotFound';
-import ServerError from './pages/public/ServerError';
+import Home from '@/pages/public/Home';
+import Register from '@/pages/auth/Register';
+import TwoFactorAuth from '@/pages/auth/TwoFactorAuth';
+import Forbidden from '@/pages/public/Forbidden';
+import NotFound from '@/pages/public/NotFound';
+import ServerError from '@/pages/public/ServerError';
 
 // Merchant Pages
-import MerchantDashboard from './pages/merchant/MerchantDashboard';
-import MerchantProfile from './pages/merchant/MerchantProfile';
-import EditMerchantProfile from './pages/merchant/EditMerchantProfile';
-import BusinessHours from './pages/merchant/BusinessHours';
-import DeliverySettings from './pages/merchant/DeliverySettings';
-import Branches from './pages/merchant/Branches';
-import BranchManagement from './pages/merchant/BranchManagement';
-import Banners from './pages/merchant/Banners';
-import Analytics from './pages/merchant/Analytics';
-import Drafts from './pages/merchant/Drafts';
-import Images from './pages/merchant/Images';
-import Maps from './pages/merchant/Maps';
-import Merchant2FA from './pages/merchant/Merchant2FA';
-import MerchantPassword from './pages/merchant/MerchantPassword';
-import MerchantPerformanceMetrics from './pages/merchant/MerchantPerformanceMetrics';
-import Products from './pages/merchant/Products';
-import Inventory from './pages/merchant/Inventory';
-import Reservations from './pages/merchant/Reservations';
-import Orders from './pages/merchant/Orders';
-import Staff from './pages/merchant/Staff';
+import MerchantDashboard from '@/pages/merchant/MerchantDashboard';
+import MerchantProfile from '@/pages/merchant/MerchantProfile';
+import EditMerchantProfile from '@/pages/merchant/EditMerchantProfile';
+import BusinessHours from '@/pages/merchant/BusinessHours';
+import DeliverySettings from '@/pages/merchant/DeliverySettings';
+import Branches from '@/pages/merchant/Branches';
+import BranchManagement from '@/pages/merchant/BranchManagement';
+import Banners from '@/pages/merchant/Banners';
+import Analytics from '@/pages/merchant/Analytics';
+import Drafts from '@/pages/merchant/Drafts';
+import Images from '@/pages/merchant/Images';
+import Maps from '@/pages/merchant/Maps';
+import Merchant2FA from '@/pages/merchant/Merchant2FA';
+import MerchantPassword from '@/pages/merchant/MerchantPassword';
+import MerchantPerformanceMetrics from '@/pages/merchant/MerchantPerformanceMetrics';
+import Products from '@/pages/merchant/Products';
+import Inventory from '@/pages/merchant/Inventory';
+import Reservations from '@/pages/merchant/Reservations';
+import Orders from '@/pages/merchant/Orders';
+import Staff from '@/pages/merchant/Staff';
 
 // Staff Pages
-import StaffDashboard from './pages/staff/StaffDashboard';
-import StaffProfile from './pages/staff/StaffProfile';
+import StaffDashboard from '@/pages/staff/StaffDashboard';
+import StaffProfile from '@/pages/staff/StaffProfile';
 
 // Driver Pages
-import DriverDashboard from './pages/driver/DriverDashboard';
-import DriverProfile from './pages/driver/DriverProfile';
-import EditDriverProfile from './pages/driver/EditDriverProfile';
-import DriverPassword from './pages/driver/DriverPassword';
+import DriverDashboard from '@/pages/driver/DriverDashboard';
+import DriverProfile from '@/pages/driver/DriverProfile';
+import EditDriverProfile from '@/pages/driver/EditDriverProfile';
+import DriverPassword from '@/pages/driver/DriverPassword';
 
 // Customer Pages
-import CustomerDashboard from './pages/customer/CustomerDashboard';
-import CustomerProfile from './pages/customer/CustomerProfile';
-import EditCustomerProfile from './pages/customer/EditCustomerProfile';
-import CustomerPassword from './pages/customer/CustomerPassword';
-import CustomerPayment from './pages/customer/CustomerPayment';
-import TableBookings from './pages/customer/TableBookings';
-import Rides from './pages/customer/Rides'; // New import
+import CustomerDashboard from '@/pages/customer/CustomerDashboard';
+import CustomerProfile from '@/pages/customer/CustomerProfile';
+import EditCustomerProfile from '@/pages/customer/EditCustomerProfile';
+import CustomerPassword from '@/pages/customer/CustomerPassword';
+import CustomerPayment from '@/pages/customer/CustomerPayment';
+import TableBookings from '@/pages/customer/TableBookings';
+import Rides from '@/pages/customer/Rides';
+import CartPage from '@/pages/customer/CartPage';
+import MenuPage from '@/pages/customer/MenuPage';
+import CheckoutPage from '@/pages/customer/CheckoutPage';
 
 // Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+
+// Logout Page (Optional)
+import Logout from '@/pages/auth/Logout'; // Add this if you create a Logout component
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -120,6 +125,7 @@ export default function App() {
                 <Route path="/two-factor-auth" element={<TwoFactorAuth />} />
                 <Route path="/forbidden" element={<Forbidden />} />
                 <Route path="/server-error" element={<ServerError />} />
+                <Route path="/logout" element={<Logout />} /> {/* Optional logout route */}
 
                 {/* Merchant Routes */}
                 <Route
@@ -389,6 +395,30 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['customer']}>
                       <Rides />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/cart"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <CartPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/menu"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <MenuPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/checkout"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <CheckoutPage />
                     </ProtectedRoute>
                   }
                 />
