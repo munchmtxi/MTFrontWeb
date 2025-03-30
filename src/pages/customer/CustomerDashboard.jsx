@@ -14,6 +14,7 @@ import {
   User,
   Utensils,
   Package,
+  Repeat,
 } from 'lucide-react';
 import { useMenu } from '@hooks/useMenu';
 import { useCart } from '@hooks/useCart';
@@ -21,18 +22,19 @@ import { useOrder } from '@hooks/useOrder';
 import { cardStyles, cardHeadingStyles, cardTextStyles, buttonStyles } from '@/components/common/styles';
 import OrderStatus from '@/components/customer/OrderStatus';
 
-// Styles
+// Dashboard Container with cinematic dark theme
 const dashboardStyles = css`
   min-height: 100vh;
   background: #000;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
+  color: #e0e0e0;
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   @media (max-width: 768px) {
     flex-direction: column;
   }
 `;
 
+// Sidebar styling with bold green accents for active items
 const sidebarStyles = css`
   width: 80px;
   background: #111;
@@ -60,33 +62,46 @@ const iconWrapperStyles = css`
 `;
 
 const iconStyles = css`
-  color: #fff;
+  color: #e0e0e0;
   transition: color 0.3s ease;
 `;
 
 const sidebarLinkStyles = css`
   display: block;
-  &.active .icon-wrapper { background-color: #1dbf1d; }
-  &.active .icon { color: #000; }
-  &:hover .icon-wrapper { background-color: #1dbf1d; }
-  &:hover .icon { color: #000; }
-  &.checkin .icon-wrapper, &.contact .icon-wrapper {
+  &.active .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &.active .icon {
+    color: #000;
+  }
+  &:hover .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &:hover .icon {
+    color: #000;
+  }
+  &.checkin .icon-wrapper,
+  &.contact .icon-wrapper {
     width: 48px;
     height: 48px;
   }
-  &.checkin .icon, &.contact .icon {
+  &.checkin .icon,
+  &.contact .icon {
     width: 28px;
     height: 28px;
   }
 `;
 
+// Main content area for dashboard panels
 const mainContentStyles = css`
   flex: 1;
-  padding: 20px 0;
-  padding-top: 15px;
-  @media (max-width: 768px) { padding: 10px; }
+  padding: 20px 30px;
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
+// Header area inside dashboard
 const headerStyles = css`
   display: flex;
   justify-content: space-between;
@@ -103,13 +118,16 @@ const headerRightStyles = css`
   gap: 20px;
   position: relative;
   & svg {
-    color: #fff;
+    color: #e0e0e0;
     cursor: pointer;
     transition: color 0.3s ease;
-    &:hover { color: #1dbf1d; }
+    &:hover {
+      color: #1dbf1d;
+    }
   }
 `;
 
+// Dropdown for profile actions
 const dropdownStyle = css`
   position: relative;
   display: inline-block;
@@ -119,22 +137,29 @@ const dropdownContentStyle = css`
   display: none;
   position: absolute;
   right: 0;
-  background-color: #f9f9f9;
+  background-color: #222;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.4);
   z-index: 1;
   border-radius: 8px;
-  &.show { display: block; }
+  &.show {
+    display: block;
+  }
 `;
 
 const dropdownLinkStyle = css`
-  color: black;
+  color: #e0e0e0;
   padding: 0.5rem 1rem;
   text-decoration: none;
   display: block;
-  &:hover { background-color: #f1f1f1; }
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: #1dbf1d;
+    color: #000;
+  }
 `;
 
+// Badge for cart count
 const badgeStyles = css`
   position: absolute;
   top: -5px;
@@ -166,7 +191,6 @@ const CustomerDashboard = () => {
       try {
         const merchantIdToFetch = selectedMerchantId || defaultMerchantId;
         await fetchMenuItems({ merchantId: merchantIdToFetch });
-        setHasFetchedMenu(true);
       } catch (err) {
         console.error('Menu fetch failed:', err);
       } finally {
@@ -179,7 +203,10 @@ const CustomerDashboard = () => {
     if (token && activeTab === 'order' && !items.length && !hasFetchedMenu && !menuLoading) {
       handleFetchMenu();
     }
-  }, [token, activeTab, items.length, handleFetchMenu, hasFetchedMenu, menuLoading]);
+    if (token && activeTab === 'orders' && !orders.length && !orderLoading) {
+      fetchOrderStatus();
+    }
+  }, [token, activeTab, items.length, handleFetchMenu, hasFetchedMenu, menuLoading, orders.length, orderLoading, fetchOrderStatus]);
 
   if (!token || user?.role !== 'customer') {
     return <Navigate to="/" replace />;
@@ -291,7 +318,7 @@ const CustomerDashboard = () => {
               <input
                 type="text"
                 placeholder="Enter Check-In Code"
-                css={css`padding: 8px; width: 100%; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; color: #000;`}
+                css={css`padding: 8px; width: 100%; margin: 10px 0; border-radius: 4px; border: 1px solid #333; background: #222; color: #e0e0e0;`}
               />
               <button css={buttonStyles} onClick={() => console.log('Check In Submitted')}>
                 Submit Check-In
@@ -326,7 +353,7 @@ const CustomerDashboard = () => {
             </div>
           </div>
         );
-      case 'orders': 
+      case 'orders':
         return (
           <div css={css`display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;`}>
             <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
@@ -403,6 +430,15 @@ const CustomerDashboard = () => {
           </div>
         </Link>
         <Link
+          to="/customer/subscriptions"
+          css={sidebarLinkStyles}
+          className={activeTab === 'subscriptions' ? 'active' : ''}
+        >
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <Repeat size={24} css={iconStyles} className="icon" /> {/* Changed to Repeat */}
+          </div>
+        </Link>
+        <Link
           to="#"
           css={sidebarLinkStyles}
           className={activeTab === 'settings' ? 'active' : ''}
@@ -425,9 +461,13 @@ const CustomerDashboard = () => {
       </div>
       <div css={mainContentStyles}>
         <div css={headerStyles}>
-          <h1 css={css`font-size: 18px; font-weight: 600; color: #1dbf1d;`}>Good Day, {profile.email}!</h1>
+          <h1 css={css`font-size: 18px; font-weight: 600; color: #1dbf1d;`}>
+            Good Day, {profile.email}!
+          </h1>
           <div css={headerRightStyles}>
-            <Bell size={20} onClick={() => console.log('Notifications clicked')} />
+            <Link to="/customer/notifications">
+              <Bell size={20} />
+            </Link>
             <Link to="/customer/cart" css={css`position: relative;`}>
               <ShoppingCart size={20} />
               {cart.items.length > 0 && <span css={badgeStyles}>{cart.items.length}</span>}

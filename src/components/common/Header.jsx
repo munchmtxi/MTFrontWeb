@@ -7,22 +7,22 @@ import { useDispatch } from 'react-redux';
 import { login } from '@/features/auth/authThunks';
 import { staffLogin } from '@/features/auth/staffAuthThunks';
 import { driverLogin } from '@/features/auth/driverAuthThunks';
-import { customerLogin } from '@/features/auth/customerAuthThunks'; // Add customer thunk
+import { customerLogin } from '@/features/auth/customerAuthThunks';
 import { v4 as uuidv4 } from 'uuid';
 import store from '@/store';
 
-// Styles (unchanged, kept for completeness)
+// Revamped Header Styles matching our cinematic theme
 const headerStyles = (theme) => css`
   position: sticky;
   top: 0;
-  z-index: 50;
-  background-color: ${theme.components.card.baseStyle.backgroundColor};
+  z-index: 100;
+  background-color: #000;
+  border-bottom: 1px solid #333;
   padding: ${theme.spacing[4]} ${theme.spacing[3]};
-  color: ${theme.components.roles.customer.primary};
 `;
 
 const containerStyles = (theme) => css`
-  max-width: ${theme.breakpoints.lg};
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -30,30 +30,31 @@ const containerStyles = (theme) => css`
 `;
 
 const logoStyles = (theme) => css`
-  font-family: ${theme.typography.fonts.heading};
-  font-size: ${theme.typography.fontSizes['2xl']};
-  font-weight: ${theme.typography.fontWeights.bold};
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
 `;
 
-const munchStyles = (theme) => css`color: ${theme.components.roles.customer.primary};`;
-const mStyles = (theme) => css`color: ${theme.components.roles.customer.secondary};`;
-const txiStyles = (theme) => css`color: #ffffff;`;
+const munchStyles = (theme) => css`color: #1dbf1d;`; // Signature green
+const mStyles = (theme) => css`color: #fedc01;`;         // Signature yellow
+const txiStyles = (theme) => css`color: #ffffff;`;         // White for contrast
 
 const navStyles = (theme) => css`
   display: flex;
-  gap: ${theme.spacing[3]};
+  gap: 1.5rem;
   align-items: center;
 `;
 
 const linkStyles = (theme) => css`
   color: #ffffff;
   text-decoration: none;
-  font-size: ${theme.typography.fontSizes.md};
-  font-family: ${theme.typography.fonts.heading};
-  transition: color 0.15s ${theme.transitions.timing.easeOut};
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  transition: color 0.2s ease;
   &:hover {
-    color: ${theme.components.roles.customer.primary};
-    text-decoration: underline;
+    color: #1dbf1d;
   }
 `;
 
@@ -61,40 +62,40 @@ const dropdownButtonStyles = (theme) => css`
   background: none;
   border: none;
   color: #ffffff;
-  font-size: ${theme.typography.fontSizes.md};
-  font-family: ${theme.typography.fonts.heading};
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
   cursor: pointer;
   padding: 0;
-  transition: color 0.15s ${theme.transitions.timing.easeOut};
+  transition: color 0.2s ease;
   &:hover {
-    color: ${theme.components.roles.customer.primary};
-    text-decoration: underline;
+    color: #fedc01;
   }
 `;
 
 const dropdownStyles = (theme) => css`
   position: absolute;
-  top: 100%;
+  top: 110%;
   right: 0;
-  background-color: ${theme.components.card.baseStyle.backgroundColor};
-  border-radius: ${theme.radii.sm};
-  box-shadow: ${theme.shadows.md};
-  padding: ${theme.spacing[2]};
+  background-color: #111;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  padding: 0.5rem 0;
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing[1]};
-  z-index: ${theme.zIndices.dropdown};
+  gap: 0.5rem;
+  z-index: 101;
 `;
 
 const dropdownLinkStyles = (theme) => css`
   color: #ffffff;
   text-decoration: none;
-  font-size: ${theme.typography.fontSizes.sm};
-  padding: ${theme.spacing[1]} ${theme.spacing[2]};
-  transition: background-color 0.15s ${theme.transitions.timing.easeOut};
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s ease;
   &:hover {
-    background-color: ${theme.components.button.variants.primary.backgroundColor};
-    color: ${theme.components.roles.customer.primary};
+    background-color: #1dbf1d;
+    color: #000;
   }
 `;
 
@@ -103,14 +104,14 @@ const modalStyles = (theme) => css`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: ${theme.components.modal.baseStyle.dialog.backgroundColor};
-  padding: ${theme.spacing[3]};
-  border-radius: ${theme.radii.md};
-  z-index: ${theme.zIndices.modal};
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  z-index: 200;
   width: 90%;
   max-width: 400px;
-  box-shadow: ${theme.shadows.lg};
-  color: ${theme.components.roles.customer.primary};
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  color: #333;
 `;
 
 const overlayStyles = (theme) => css`
@@ -119,42 +120,45 @@ const overlayStyles = (theme) => css`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${theme.components.modal.baseStyle.overlay.backgroundColor};
-  z-index: ${theme.zIndices.overlay};
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 150;
 `;
 
 const inputStyles = (theme) => css`
   width: 100%;
-  padding: ${theme.spacing[1]};
-  margin-bottom: ${theme.spacing[2]};
-  background-color: ${theme.components.input.baseStyle.backgroundColor};
-  color: ${theme.components.input.baseStyle.color};
-  border: 1px solid ${theme.components.input.baseStyle.borderColor};
-  border-radius: ${theme.radii.sm};
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 `;
 
 const buttonStyles = (theme) => css`
-  padding: ${theme.spacing[1.5]};
-  background-color: ${theme.components.button.variants.primary.backgroundColor};
-  color: ${theme.components.button.variants.primary.color};
-  border-radius: ${theme.radii.sm};
+  padding: 0.75rem;
+  background-color: #1dbf1d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
   width: 100%;
-  text-align: center;
-  transition: background-color 0.15s ${theme.transitions.timing.easeOut};
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
   &:hover {
-    background-color: ${theme.components.button.variants.primary._hover.backgroundColor};
+    background-color: #fedc01;
+    color: #000;
   }
 `;
 
 const closeButtonOverrides = (theme) => css`
-  background-color: ${theme.components.button.variants.secondary.backgroundColor};
-  margin-top: ${theme.spacing[1]};
+  background-color: #333;
+  margin-top: 0.5rem;
 `;
 
 const errorStyles = (theme) => css`
   color: red;
-  font-size: ${theme.typography.fontSizes.sm};
-  margin-top: ${theme.spacing[1]};
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
   text-align: center;
 `;
 
@@ -177,7 +181,7 @@ const dropdownVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1.0] } },
 };
 
-// ModalForm Component
+// ModalForm Component remains unchanged in functionality but with updated styling
 const ModalForm = ({ title, onSubmit, onClose, error }) => {
   const theme = useTheme();
   const [email, setEmail] = useState('');
@@ -189,10 +193,10 @@ const ModalForm = ({ title, onSubmit, onClose, error }) => {
       <form css={modalStyles(theme)} onSubmit={(e) => onSubmit(e, email, password)}>
         <h2
           css={css`
-            font-size: ${theme.typography.fontSizes.xl};
-            font-weight: ${theme.typography.fontWeights.bold};
-            margin-bottom: ${theme.spacing[2]};
-            color: ${theme.components.roles.customer.primary};
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
           `}
         >
           {title}
@@ -225,7 +229,7 @@ const ModalForm = ({ title, onSubmit, onClose, error }) => {
   );
 };
 
-// Header Component
+// Header Component with revamped styling
 const Header = () => {
   const theme = useTheme();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -263,15 +267,12 @@ const Header = () => {
           result = await dispatch(driverLogin({ email, password, deviceId, deviceType })).unwrap();
           break;
         case 'admin':
-          // Assuming admin uses staffLogin for now; adjust if there's a separate admin thunk
           result = await dispatch(staffLogin({ email, password })).unwrap();
           break;
         default:
           throw new Error('Unknown role');
       }
       console.log('Login result:', result);
-
-      // Ensure state updates before proceeding
       await new Promise(resolve => setTimeout(resolve, 0));
       const updatedState = store.getState().auth;
       console.log('Redux state after dispatch:', updatedState);

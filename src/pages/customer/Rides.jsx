@@ -4,28 +4,15 @@ import { css } from '@emotion/react';
 import { Navigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { requestRideAsync } from '../../features/customer/rideSlice';
-import {
-  Bell,
-  Calendar,
-  Car,
-  Clock,
-  Headphones,
-  History,
-  QrCode,
-  Settings,
-  ShoppingCart,
-  User,
-  Utensils,
-  Package,
-} from 'lucide-react';
+import { ArrowLeft, Car, Clock, History, ShoppingCart } from 'lucide-react';
 import { useCart } from '@hooks/useCart';
 import axios from '../../api/axios';
 
-// Styles from CustomerDashboard
-const dashboardStyles = css`
+// Styles (aligned with TableBookings and MenuPage)
+const pageStyles = css`
   min-height: 100vh;
   background: #000;
-  color: #fff;
+  color: #e0e0e0;
   font-family: 'Inter', sans-serif;
   display: flex;
   @media (max-width: 768px) {
@@ -60,23 +47,32 @@ const iconWrapperStyles = css`
 `;
 
 const iconStyles = css`
-  color: #fff;
+  color: #e0e0e0;
   transition: color 0.3s ease;
 `;
 
 const sidebarLinkStyles = css`
   display: block;
-  &.active .icon-wrapper { background-color: #1dbf1d; }
-  &.active .icon { color: #000; }
-  &:hover .icon-wrapper { background-color: #1dbf1d; }
-  &:hover .icon { color: #000; }
+  &.active .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &.active .icon {
+    color: #000;
+  }
+  &:hover .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &:hover .icon {
+    color: #000;
+  }
 `;
 
 const mainContentStyles = css`
   flex: 1;
-  padding: 20px 0;
-  padding-top: 15px;
-  @media (max-width: 768px) { padding: 10px; }
+  padding: 20px 30px;
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const headerStyles = css`
@@ -95,36 +91,13 @@ const headerRightStyles = css`
   gap: 20px;
   position: relative;
   & svg {
-    color: #fff;
+    color: #e0e0e0;
     cursor: pointer;
     transition: color 0.3s ease;
-    &:hover { color: #1dbf1d; }
+    &:hover {
+      color: #1dbf1d;
+    }
   }
-`;
-
-const dropdownStyle = css`
-  position: relative;
-  display: inline-block;
-`;
-
-const dropdownContentStyle = css`
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-  border-radius: 8px;
-  &.show { display: block; }
-`;
-
-const dropdownLinkStyle = css`
-  color: black;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  display: block;
-  &:hover { background-color: #f1f1f1; }
 `;
 
 const badgeStyles = css`
@@ -172,12 +145,17 @@ const buttonStyles = css`
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  &:hover { background: #17a317; }
-  &:disabled { background: #555; cursor: not-allowed; }
+  &:hover {
+    background: #17a317;
+  }
+  &:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
 `;
 
 const errorStyles = css`
-  color: red;
+  color: #ff4d4d;
   margin-top: 10px;
 `;
 
@@ -189,7 +167,6 @@ const Rides = () => {
   const [activeTab, setActiveTab] = useState('request');
   const [tracking, setTracking] = useState(null);
   const [rideHistory, setRideHistory] = useState([]);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (activeTab === 'track' && currentRide) {
@@ -302,28 +279,15 @@ const Rides = () => {
   };
 
   return (
-    <div css={dashboardStyles}>
+    <div css={pageStyles}>
       <div css={sidebarStyles}>
-        <Link
-          to="/customer/table-bookings"
-          css={sidebarLinkStyles}
-          className={activeTab === 'bookings' ? 'active' : ''}
-          onClick={() => setActiveTab('bookings')}
-        >
+        {/* Back to Dashboard */}
+        <Link to="/customer/dashboard" css={sidebarLinkStyles}>
           <div css={iconWrapperStyles} className="icon-wrapper">
-            <Calendar size={24} css={iconStyles} className="icon" />
+            <ArrowLeft size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'order' ? 'active' : ''}
-          onClick={() => setActiveTab('order')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Utensils size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
+        {/* Request Ride */}
         <Link
           to="/customer/rides"
           css={sidebarLinkStyles}
@@ -334,6 +298,7 @@ const Rides = () => {
             <Car size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
+        {/* Track Ride */}
         <Link
           to="/customer/rides"
           css={sidebarLinkStyles}
@@ -344,6 +309,7 @@ const Rides = () => {
             <Clock size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
+        {/* Ride History */}
         <Link
           to="/customer/rides"
           css={sidebarLinkStyles}
@@ -354,95 +320,15 @@ const Rides = () => {
             <History size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'checkin' ? 'active' : ''}
-          onClick={() => setActiveTab('checkin')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <QrCode size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'orders' ? 'active' : ''}
-          onClick={() => setActiveTab('orders')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Package size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'settings' ? 'active' : ''}
-          onClick={() => setActiveTab('settings')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Settings size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'contact' ? 'active' : ''}
-          onClick={() => setActiveTab('contact')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Headphones size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
       </div>
       <div css={mainContentStyles}>
         <div css={headerStyles}>
           <h1 css={css`font-size: 18px; font-weight: 600; color: #1dbf1d;`}>Good Day, {profile.email}!</h1>
           <div css={headerRightStyles}>
-            <Bell size={20} onClick={() => console.log('Notifications clicked')} />
             <Link to="/customer/cart" css={css`position: relative;`}>
               <ShoppingCart size={20} />
               {cart.items.length > 0 && <span css={badgeStyles}>{cart.items.length}</span>}
             </Link>
-            <div css={dropdownStyle}>
-              <User size={20} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} />
-              <div css={dropdownContentStyle} className={profileDropdownOpen ? 'show' : ''}>
-                <Link
-                  to="#"
-                  css={dropdownLinkStyle}
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    setActiveTab('profile');
-                  }}
-                >
-                  View Profile
-                </Link>
-                <Link
-                  to="/customer/profile/edit"
-                  css={dropdownLinkStyle}
-                  onClick={() => setProfileDropdownOpen(false)}
-                >
-                  Edit Profile
-                </Link>
-                <Link
-                  to="/customer/profile/password"
-                  css={dropdownLinkStyle}
-                  onClick={() => setProfileDropdownOpen(false)}
-                >
-                  Change Password
-                </Link>
-                <Link
-                  to="/customer/profile/payment"
-                  css={dropdownLinkStyle}
-                  onClick={() => setProfileDropdownOpen(false)}
-                >
-                  Payment Methods
-                </Link>
-                <Link to="/logout" css={dropdownLinkStyle} onClick={() => setProfileDropdownOpen(false)}>
-                  Logout
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
         {renderContent()}

@@ -19,9 +19,10 @@ import reservationReducer from '../features/merchant/reservation/reservationSlic
 import staffProfileReducer from '../features/staff/profile/staffProfileSlice';
 import bookingReducer from '../features/customer/bookingSlice';
 import rideReducer from '../features/customer/rideSlice';
-import cartReducer from '../features/customer/cartSlice'; 
+import cartReducer from '../features/customer/cartSlice';
 import menuReducer from '../features/customer/menuSlice';
 import orderReducer from '../features/customer/orderSlice';
+import subscriptionReducer from '../features/customer/subscriptionSlice'; // New import
 
 const store = configureStore({
   reducer: {
@@ -45,9 +46,10 @@ const store = configureStore({
     staffProfile: staffProfileReducer,
     booking: bookingReducer,
     ride: rideReducer,
-    cart: cartReducer, 
+    cart: cartReducer,
     menu: menuReducer,
     order: orderReducer,
+    subscription: subscriptionReducer, // New reducer
   },
 });
 

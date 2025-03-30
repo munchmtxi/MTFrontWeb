@@ -4,15 +4,15 @@ import { css, useTheme } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { FaTwitter, FaFacebook, FaInstagram, FaApple, FaAndroid } from 'react-icons/fa';
 
-// ----- Styles -----
+// New Footer Styles for our modern, minimal look
 const footerStyles = (theme) => css`
-  background-color: ${theme.components.card.baseStyle.backgroundColor};
+  background-color: #111; /* Dark background for sophistication */
   padding: ${theme.spacing[7]} ${theme.spacing[3]} ${theme.spacing[4]};
-  color: ${theme.components.roles.customer.primary};
+  color: #e0e0e0;
 `;
 
 const containerStyles = (theme) => css`
-  max-width: ${theme.breakpoints.lg};
+  max-width: 1200px;
   margin: 0 auto;
 `;
 
@@ -30,17 +30,17 @@ const brandSectionStyles = css`
 `;
 
 const logoStyles = (theme) => css`
-  font-family: ${theme.typography.fonts.heading};
-  font-size: ${theme.typography.fontSizes['2xl']};
-  font-weight: ${theme.typography.fontWeights.bold};
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   margin-bottom: ${theme.spacing[2]};
 `;
 
-const munchStyles = (theme) => css`color: ${theme.components.roles.customer.primary};`;
-const mStyles = (theme) => css`color: ${theme.components.roles.customer.secondary};`;
-const txiStyles = (theme) => css`color: #ffffff;`; // Changed to white
+const munchStyles = (theme) => css`color: #1dbf1d;`;  // Primary signature green
+const mStyles = (theme) => css`color: #fedc01;`;          // Secondary signature yellow
+const txiStyles = (theme) => css`color: #ffffff;`;
 
 const socialContainerStyles = (theme) => css`
   display: flex;
@@ -49,11 +49,12 @@ const socialContainerStyles = (theme) => css`
 `;
 
 const socialIconStyles = (theme) => css`
-  font-size: ${theme.typography.fontSizes.xl};
-  color: ${theme.components.roles.customer.accent};
-  transition: color 0.15s ${theme.transitions.timing.easeOut};
+  font-size: 1.5rem;
+  color: #1dbf1d;
+  transition: transform 0.2s ease, color 0.2s ease;
   &:hover {
-    color: ${theme.components.roles.customer.primary};
+    color: #fedc01;
+    transform: scale(1.2);
   }
 `;
 
@@ -70,10 +71,10 @@ const columnStyles = css`
 `;
 
 const columnTitleStyles = (theme) => css`
-  font-family: ${theme.typography.fonts.heading};
-  font-size: ${theme.typography.fontSizes.lg};
-  font-weight: ${theme.typography.fontWeights.bold};
-  color: ${theme.components.roles.customer.primary};
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
   margin-bottom: ${theme.spacing[2]};
   text-transform: uppercase;
 `;
@@ -89,13 +90,13 @@ const listItemStyles = (theme) => css`
 `;
 
 const linkStyles = (theme) => css`
-  color: ${theme.components.input.baseStyle.color};
+  color: #bbb;
   text-decoration: none;
-  font-size: ${theme.typography.fontSizes.md};
-  font-family: ${theme.typography.fonts.body};
-  transition: color 0.15s ${theme.transitions.timing.easeOut};
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  transition: color 0.2s ease;
   &:hover {
-    color: ${theme.components.roles.customer.accent};
+    color: #fedc01;
     text-decoration: underline;
   }
 `;
@@ -107,18 +108,18 @@ const logoListStyles = (theme) => css`
 `;
 
 const logoIconStyles = (theme) => css`
-  font-size: ${theme.typography.fontSizes['2xl']};
-  color: ${theme.components.roles.customer.accent};
+  font-size: 2rem;
+  color: #1dbf1d;
 `;
 
 const pciTextStyles = (theme) => css`
-  font-size: ${theme.typography.fontSizes.sm};
-  color: ${theme.components.input.baseStyle.color};
+  font-size: 0.875rem;
+  color: #bbb;
 `;
 
 const separatorStyles = (theme) => css`
   height: 1px;
-  background-color: ${theme.components.input.baseStyle.borderColor};
+  background-color: #333;
   margin: ${theme.spacing[4]} 0;
 `;
 
@@ -131,9 +132,9 @@ const bottomSectionStyles = (theme) => css`
 `;
 
 const copyrightStyles = (theme) => css`
-  color: ${theme.components.input.baseStyle.color};
-  font-size: ${theme.typography.fontSizes.sm};
-  font-family: ${theme.typography.fonts.body};
+  color: #777;
+  font-size: 0.875rem;
+  font-family: 'Montserrat', sans-serif;
 `;
 
 // Motion Variants
@@ -141,11 +142,7 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
     opacity: 1, 
-    transition: { 
-      duration: 0.5,
-      staggerChildren: 0.1, 
-      delayChildren: 0.1 
-    } 
+    transition: { duration: 0.5, staggerChildren: 0.1, delayChildren: 0.1 } 
   },
 };
 
@@ -154,16 +151,13 @@ const itemVariants = {
   visible: { 
     opacity: 1, 
     y: 0, 
-    transition: { 
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1.0] 
-    } 
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1.0] } 
   },
 };
 
 const hoverTapTransition = { duration: 0.2 };
 
-// ----- Footer Component -----
+// Footer Component with revamped styling
 const Footer = () => {
   const theme = useTheme();
   const socialLinks = [

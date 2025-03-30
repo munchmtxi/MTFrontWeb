@@ -6,28 +6,21 @@ import { useSelector } from 'react-redux';
 import useBookings from '../../hooks/useBookings';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import {
-  Bell,
+  ArrowLeft,
   Calendar,
-  Car,
-  Headphones,
-  QrCode,
-  Settings,
-  ShoppingCart,
-  User,
-  Utensils,
-  Package,
   Plus,
   UserPlus,
   CheckCircle,
   X,
+  ShoppingCart, // Added ShoppingCart import
 } from 'lucide-react';
 import { useCart } from '@hooks/useCart';
 
-// Styles from CustomerDashboard
-const dashboardStyles = css`
+// Styles (aligned with CustomerDashboard but simplified for this page)
+const pageStyles = css`
   min-height: 100vh;
   background: #000;
-  color: #fff;
+  color: #e0e0e0;
   font-family: 'Inter', sans-serif;
   display: flex;
   @media (max-width: 768px) {
@@ -62,23 +55,32 @@ const iconWrapperStyles = css`
 `;
 
 const iconStyles = css`
-  color: #fff;
+  color: #e0e0e0;
   transition: color 0.3s ease;
 `;
 
 const sidebarLinkStyles = css`
   display: block;
-  &.active .icon-wrapper { background-color: #1dbf1d; }
-  &.active .icon { color: #000; }
-  &:hover .icon-wrapper { background-color: #1dbf1d; }
-  &:hover .icon { color: #000; }
+  &.active .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &.active .icon {
+    color: #000;
+  }
+  &:hover .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &:hover .icon {
+    color: #000;
+  }
 `;
 
 const mainContentStyles = css`
   flex: 1;
-  padding: 20px 0;
-  padding-top: 15px;
-  @media (max-width: 768px) { padding: 10px; }
+  padding: 20px 30px;
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const headerStyles = css`
@@ -97,36 +99,13 @@ const headerRightStyles = css`
   gap: 20px;
   position: relative;
   & svg {
-    color: #fff;
+    color: #e0e0e0;
     cursor: pointer;
     transition: color 0.3s ease;
-    &:hover { color: #1dbf1d; }
+    &:hover {
+      color: #1dbf1d;
+    }
   }
-`;
-
-const dropdownStyle = css`
-  position: relative;
-  display: inline-block;
-`;
-
-const dropdownContentStyle = css`
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-  border-radius: 8px;
-  &.show { display: block; }
-`;
-
-const dropdownLinkStyle = css`
-  color: black;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  display: block;
-  &:hover { background-color: #f1f1f1; }
 `;
 
 const badgeStyles = css`
@@ -177,8 +156,13 @@ const buttonStyles = css`
   display: flex;
   align-items: center;
   gap: 5px;
-  &:hover { background: #17a317; }
-  &:disabled { background: #555; cursor: not-allowed; }
+  &:hover {
+    background: #17a317;
+  }
+  &:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
 `;
 
 const toggleButtonStyles = css`
@@ -191,7 +175,9 @@ const toggleButtonStyles = css`
   gap: 5px;
   padding: 5px;
   transition: color 0.3s ease;
-  &:hover { color: #17a317; }
+  &:hover {
+    color: #17a317;
+  }
 `;
 
 const formStyles = css`
@@ -202,12 +188,13 @@ const formStyles = css`
     font-size: 14px;
     margin-bottom: 5px;
   }
-  & input, & select {
+  & input,
+  & select {
     padding: 10px;
     background: #333;
     border: 1px solid #444;
     border-radius: 6px;
-    color: #fff;
+    color: #e0e0e0;
     width: 100%;
     &:focus {
       border-color: #1dbf1d;
@@ -264,8 +251,6 @@ export default function TableBookings() {
   const [inviteData, setInviteData] = useState({ type: 'email', value: '' });
   const [invites, setInvites] = useState([]);
   const [showInvites, setShowInvites] = useState(false);
-  const [activeTab, setActiveTab] = useState('bookings');
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const { availableTables, loading, error, getAvailableTables, bookTable } = useBookings();
 
   if (!token || user?.role !== 'customer') return <Navigate to="/" replace />;
@@ -315,76 +300,18 @@ export default function TableBookings() {
   };
 
   return (
-    <div css={dashboardStyles}>
+    <div css={pageStyles}>
       <div css={sidebarStyles}>
-        <Link
-          to="/customer/table-bookings"
-          css={sidebarLinkStyles}
-          className={activeTab === 'bookings' ? 'active' : ''}
-          onClick={() => setActiveTab('bookings')}
-        >
+        {/* Back to Dashboard */}
+        <Link to="/customer/dashboard" css={sidebarLinkStyles}>
+          <div css={iconWrapperStyles} className="icon-wrapper">
+            <ArrowLeft size={24} css={iconStyles} className="icon" />
+          </div>
+        </Link>
+        {/* Page-specific icon (Calendar for TableBookings) */}
+        <Link to="/customer/table-bookings" css={sidebarLinkStyles} className="active">
           <div css={iconWrapperStyles} className="icon-wrapper">
             <Calendar size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'order' ? 'active' : ''}
-          onClick={() => setActiveTab('order')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Utensils size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="/customer/rides"
-          css={sidebarLinkStyles}
-          className={activeTab === 'rides' ? 'active' : ''}
-          onClick={() => setActiveTab('rides')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Car size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'checkin' ? 'active' : ''}
-          onClick={() => setActiveTab('checkin')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <QrCode size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'orders' ? 'active' : ''}
-          onClick={() => setActiveTab('orders')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Package size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'settings' ? 'active' : ''}
-          onClick={() => setActiveTab('settings')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Settings size={24} css={iconStyles} className="icon" />
-          </div>
-        </Link>
-        <Link
-          to="#"
-          css={sidebarLinkStyles}
-          className={activeTab === 'contact' ? 'active' : ''}
-          onClick={() => setActiveTab('contact')}
-        >
-          <div css={iconWrapperStyles} className="icon-wrapper">
-            <Headphones size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
       </div>
@@ -392,50 +319,10 @@ export default function TableBookings() {
         <div css={headerStyles}>
           <h1 css={css`font-size: 18px; font-weight: 600; color: #1dbf1d;`}>Good Day, {profile.email}!</h1>
           <div css={headerRightStyles}>
-            <Bell size={20} onClick={() => console.log('Notifications clicked')} />
             <Link to="/customer/cart" css={css`position: relative;`}>
               <ShoppingCart size={20} />
               {cart.items.length > 0 && <span css={badgeStyles}>{cart.items.length}</span>}
             </Link>
-            <div css={dropdownStyle}>
-              <User size={20} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} />
-              <div css={dropdownContentStyle} className={profileDropdownOpen ? 'show' : ''}>
-                <Link
-                  to="#"
-                  css={dropdownLinkStyle}
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    setActiveTab('profile');
-                  }}
-                >
-                  View Profile
-                </Link>
-                <Link
-                  to="/customer/profile/edit"
-                  css={dropdownLinkStyle}
-                  onClick={() => setProfileDropdownOpen(false)}
-                >
-                  Edit Profile
-                </Link>
-                <Link
-                  to="/customer/profile/password"
-                  css={dropdownLinkStyle}
-                  onClick={() => setProfileDropdownOpen(false)}
-                >
-                  Change Password
-                </Link>
-                <Link
-                  to="/customer/profile/payment"
-                  css={dropdownLinkStyle}
-                  onClick={() => setProfileDropdownOpen(false)}
-                >
-                  Payment Methods
-                </Link>
-                <Link to="/logout" css={dropdownLinkStyle} onClick={() => setProfileDropdownOpen(false)}>
-                  Logout
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
         <div css={css`display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;`}>
@@ -491,10 +378,7 @@ export default function TableBookings() {
           </div>
 
           <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-            <button
-              css={toggleButtonStyles}
-              onClick={() => setShowInvites(!showInvites)}
-            >
+            <button css={toggleButtonStyles} onClick={() => setShowInvites(!showInvites)}>
               <CheckCircle size={20} /> Add Friends
             </button>
             {showInvites && (
@@ -503,11 +387,7 @@ export default function TableBookings() {
                 <div css={formStyles}>
                   <label>
                     Invite By:
-                    <select
-                      name="type"
-                      value={inviteData.type}
-                      onChange={handleInviteChange}
-                    >
+                    <select name="typeskills: form-select-lg" value={inviteData.type} onChange={handleInviteChange}>
                       <option value="email">Email</option>
                       <option value="userId">User ID</option>
                     </select>
@@ -547,11 +427,7 @@ export default function TableBookings() {
                 {availableTables.map((table) => (
                   <div key={table.tableId} css={tableItemStyles}>
                     <span css={cardTextStyles}>Table {table.tableNumber} (Capacity: {table.capacity})</span>
-                    <button
-                      css={buttonStyles}
-                      onClick={() => handleReserve(table.tableId)}
-                      disabled={loading}
-                    >
+                    <button css={buttonStyles} onClick={() => handleReserve(table.tableId)} disabled={loading}>
                       Reserve
                     </button>
                   </div>

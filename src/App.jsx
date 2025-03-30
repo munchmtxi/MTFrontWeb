@@ -6,8 +6,8 @@ import { ThemeProvider } from '@emotion/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 
-import store from '@/store'; // Absolute import
-import { getResponsiveTheme } from '@/styles/themeResponsive'; // Absolute import
+import store from '@/store';
+import { getResponsiveTheme } from '@/styles/themeResponsive';
 
 // Public Pages
 import Home from '@/pages/public/Home';
@@ -60,12 +60,14 @@ import Rides from '@/pages/customer/Rides';
 import CartPage from '@/pages/customer/CartPage';
 import MenuPage from '@/pages/customer/MenuPage';
 import CheckoutPage from '@/pages/customer/CheckoutPage';
+import Notifications from '@/pages/customer/Notifications';
+import SubscriptionPage from '@/pages/customer/SubscriptionPage'; // New import
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 
 // Logout Page (Optional)
-import Logout from '@/pages/auth/Logout'; // Add this if you create a Logout component
+import Logout from '@/pages/auth/Logout';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,10 +99,16 @@ ErrorFallback.propTypes = {
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { token, user } = useSelector((state) => state.auth);
   const role = user?.role;
+  console.log('ProtectedRoute - Token:', token, 'Role:', role, 'Allowed:', allowedRoles);
 
-  if (!token) return <Navigate to="/" replace />;
-  if (allowedRoles && !allowedRoles.includes(role))
+  if (!token) {
+    console.log('Redirecting to / due to no token');
+    return <Navigate to="/" replace />;
+  }
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    console.log('Redirecting to /forbidden due to role mismatch');
     return <Navigate to="/forbidden" replace />;
+  }
   return children;
 };
 
@@ -125,7 +133,7 @@ export default function App() {
                 <Route path="/two-factor-auth" element={<TwoFactorAuth />} />
                 <Route path="/forbidden" element={<Forbidden />} />
                 <Route path="/server-error" element={<ServerError />} />
-                <Route path="/logout" element={<Logout />} /> {/* Optional logout route */}
+                <Route path="/logout" element={<Logout />} />
 
                 {/* Merchant Routes */}
                 <Route
@@ -419,6 +427,22 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['customer']}>
                       <CheckoutPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/notifications"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <Notifications />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/subscriptions"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <SubscriptionPage />
                     </ProtectedRoute>
                   }
                 />

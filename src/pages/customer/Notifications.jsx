@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 import { useSelector } from 'react-redux';
 import { Navigate, Link } from 'react-router-dom';
-import { ArrowLeft, CreditCard, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Bell, ShoppingCart } from 'lucide-react';
 import { useCart } from '@hooks/useCart';
-import customerProfileApi from '../../api/customer/profile/customerProfileApi';
+import axios from '../../api/axios'; // Assuming axios is configured in your project
 
 // Styles
 const pageStyles = css`
@@ -114,37 +114,35 @@ const badgeStyles = css`
   font-size: 10px;
 `;
 
-const paymentStyles = css`
+const notificationListStyles = css`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  & input {
-    padding: 10px;
-    background: #333;
-    border: 1px solid #444;
-    border-radius: 6px;
-    color: #e0e0e0;
-    width: 100%;
-    max-width: 400px;
-    &:focus {
-      border-color: #1dbf1d;
-      outline: none;
-    }
-  }
+  gap: 15px;
+  max-width: 600px;
+`;
+
+const notificationItemStyles = css`
+  background: #111;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const cardTextStyles = css`
   font-size: 14px;
   color: #ccc;
-  margin: 5px 0;
+  margin: 0;
 `;
 
 const buttonStyles = css`
-  padding: 10px 20px;
+  padding: 8px 16px;
   background: #1dbf1d;
   color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   &:hover {
@@ -152,41 +150,54 @@ const buttonStyles = css`
   }
 `;
 
-const CustomerPayment = () => {
+const errorStyles = css`
+  color: #ff4d4d;
+  font-size: 14px;
+  text-align: center;
+  margin: 20px 0;
+`;
+
+const Notifications = () => {
   const { user, token } = useSelector((state) => state.auth);
   const { cart } = useCart();
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [newMethod, setNewMethod] = useState({ type: 'card', last4: '', expiry: '' });
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchNotifications = async () => {
       try {
-        const response = await customerProfileApi.getProfile();
-        setPaymentMethods(response.data.data.paymentMethods || []);
-      } catch (error) {
-        console.error('Failed to fetch payment methods:', error);
+        // Replace with your actual API endpoint
+        const response = await axios.get('/api/v1/notifications', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNotifications(response.data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch notifications:', err.response?.data || err.message);
+        setError('Failed to load notifications. Please try again later.');
+        // Mock data as fallback
+        setNotifications([
+          { id: 1, message: 'Your ride is arriving in 5 minutes!', timestamp: '2025-03-30T10:00:00Z', read: false },
+          { id: 2, message: 'Table booking confirmed for 7 PM.', timestamp: '2025-03-29T15:30:00Z', read: true },
+        ]);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchProfile();
-  }, []);
+
+    if (token) {
+      fetchNotifications();
+    }
+  }, [token]);
 
   if (!token || user?.role !== 'customer') return <Navigate to="/" replace />;
 
-  const handleChange = (e) => {
-    setNewMethod({ ...newMethod, [e.target.name]: e.target.value });
-  };
-
-  const handleAdd = async () => {
-    try {
-      const response = await customerProfileApi.managePaymentMethods({
-        action: 'add',
-        paymentMethod: newMethod,
-      });
-      setPaymentMethods(response.data.data);
-      setNewMethod({ type: 'card', last4: '', expiry: '' });
-    } catch (error) {
-      console.error('Failed to add payment method:', error);
-    }
+  const markAsRead = (id) => {
+    setNotifications(notifications.map((notif) =>
+      notif.id === id ? { ...notif, read: true } : notif
+    ));
+    // Optionally, add API call to mark notification as read
+    // e.g., await axios.patch(`/api/v1/notifications/${id}/read`, {}, { headers: { Authorization: `Bearer ${token}` } });
   };
 
   return (
@@ -197,9 +208,9 @@ const CustomerPayment = () => {
             <ArrowLeft size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
-        <Link to="/customer/profile/payment" css={sidebarLinkStyles} className="active">
+        <Link to="/customer/notifications" css={sidebarLinkStyles} className="active">
           <div css={iconWrapperStyles} className="icon-wrapper">
-            <CreditCard size={24} css={iconStyles} className="icon" />
+            <Bell size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
       </div>
@@ -213,31 +224,34 @@ const CustomerPayment = () => {
             </Link>
           </div>
         </div>
-        <div css={paymentStyles}>
-          <h1 css={css`font-size: 24px; color: #1dbf1d; margin-bottom: 20px;`}>Payment Methods</h1>
-          {paymentMethods.map((method) => (
-            <p key={method.id} css={cardTextStyles}>
-              {method.type} - {method.last4} (Expires: {method.expiry})
-            </p>
+        <div css={notificationListStyles}>
+          <h1 css={css`font-size: 24px; color: #1dbf1d; margin-bottom: 20px;`}>Notifications</h1>
+          {loading && <p css={cardTextStyles}>Loading notifications...</p>}
+          {error && <p css={errorStyles}>{error}</p>}
+          {!loading && notifications.length === 0 && (
+            <p css={cardTextStyles}>No notifications available.</p>
+          )}
+          {!loading && notifications.length > 0 && notifications.map((notif) => (
+            <div key={notif.id} css={notificationItemStyles}>
+              <div>
+                <p css={cardTextStyles} style={{ color: notif.read ? '#ccc' : '#e0e0e0' }}>
+                  {notif.message}
+                </p>
+                <p css={cardTextStyles} style={{ fontSize: '12px' }}>
+                  {new Date(notif.timestamp).toLocaleString()}
+                </p>
+              </div>
+              {!notif.read && (
+                <button css={buttonStyles} onClick={() => markAsRead(notif.id)}>
+                  Mark as Read
+                </button>
+              )}
+            </div>
           ))}
-          <h2 css={css`font-size: 18px; color: #e0e0e0; margin-top: 20px;`}>Add New Payment Method</h2>
-          <input
-            name="last4"
-            value={newMethod.last4}
-            onChange={handleChange}
-            placeholder="Last 4 Digits"
-          />
-          <input
-            name="expiry"
-            value={newMethod.expiry}
-            onChange={handleChange}
-            placeholder="MM/YY"
-          />
-          <button css={buttonStyles} onClick={handleAdd}>Add Card</button>
         </div>
       </div>
     </div>
   );
 };
 
-export default CustomerPayment;
+export default Notifications;

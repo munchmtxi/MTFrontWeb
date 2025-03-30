@@ -7,21 +7,19 @@ import Footer from '@/components/common/Footer';
 import { getResponsiveTheme } from '@/styles/themeResponsive';
 import { greenScale } from '@/styles/themeTokens';
 
-// Responsive theme
 const theme = getResponsiveTheme('laptop');
 
-// Contact Section Styles
 const contactSectionStyles = css`
   padding: ${theme.spacing[20]} ${theme.spacing[4]};
   text-align: center;
-  background-color: ${theme.components.card.baseStyle.backgroundColor};
+  background-color: #000;
 `;
 
 const contactTitle = css`
-  font-family: ${theme.typography.fonts.heading};
+  font-family: 'Montserrat', sans-serif;
   font-size: ${theme.typography.fontSizes['5xl']};
   font-weight: ${theme.typography.fontWeights.bold};
-  color: #fff;
+  color: #1dbf1d;
   margin-bottom: ${theme.spacing[12]};
   line-height: ${theme.typography.lineHeights.tight};
 `;
@@ -29,9 +27,9 @@ const contactTitle = css`
 const contactContent = css`
   max-width: ${theme.grid.container.md};
   margin: 0 auto;
-  font-family: ${theme.typography.fonts.body};
+  font-family: 'Montserrat', sans-serif;
   font-size: ${theme.typography.fontSizes.lg};
-  color: ${theme.components.input.baseStyle._placeholder.color};
+  color: #e0e0e0;
   line-height: ${theme.typography.lineHeights.relaxed};
 `;
 

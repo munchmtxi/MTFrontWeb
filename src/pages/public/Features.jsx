@@ -8,21 +8,19 @@ import { getResponsiveTheme } from '@/styles/themeResponsive';
 import { greenScale } from '@/styles/themeTokens';
 import { Package, ShoppingCart, Truck, Clock } from 'lucide-react';
 
-// Responsive theme
 const theme = getResponsiveTheme('laptop');
 
-// Features Section Styles
 const featuresSectionStyles = css`
   padding: ${theme.spacing[20]} ${theme.spacing[4]};
   text-align: center;
-  background-color: ${theme.components.card.baseStyle.backgroundColor};
+  background-color: #000;
 `;
 
 const featuresTitle = css`
-  font-family: ${theme.typography.fonts.heading};
+  font-family: 'Montserrat', sans-serif;
   font-size: ${theme.typography.fontSizes['5xl']};
   font-weight: ${theme.typography.fontWeights.bold};
-  color: #fff;
+  color: #1dbf1d;
   margin-bottom: ${theme.spacing[12]};
   line-height: ${theme.typography.lineHeights.tight};
 `;
@@ -36,7 +34,7 @@ const featuresGrid = css`
 `;
 
 const featureItem = css`
-  background-color: ${theme.components.card.variants.filled.backgroundColor};
+  background-color: #111;
   padding: ${theme.spacing[6]};
   border-radius: ${theme.components.card.baseStyle.borderRadius};
   transition: transform 0.15s ${theme.transitions.timing.easeInOut};
@@ -53,17 +51,17 @@ const featureIcon = css`
 `;
 
 const featureTitle = css`
-  font-family: ${theme.typography.fonts.heading};
+  font-family: 'Montserrat', sans-serif;
   font-size: ${theme.typography.fontSizes['2xl']};
   font-weight: ${theme.typography.fontWeights.semibold};
   margin-bottom: ${theme.spacing[2]};
-  color: #fff;
+  color: #e0e0e0;
 `;
 
 const featureDescription = css`
-  font-family: ${theme.typography.fonts.body};
+  font-family: 'Montserrat', sans-serif;
   font-size: ${theme.typography.fontSizes.md};
-  color: ${theme.components.input.baseStyle._placeholder.color};
+  color: #bbb;
   line-height: ${theme.typography.lineHeights.relaxed};
 `;
 
@@ -116,10 +114,10 @@ const Features = () => {
                 whileHover={{ scale: 1.03 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  delay: index * 0.2, 
+                transition={{
+                  delay: index * 0.2,
                   duration: 0.2,
-                  ease: theme.transitions.timing.easeInOut 
+                  ease: theme.transitions.timing.easeInOut,
                 }}
               >
                 {feature.icon}
