@@ -15,8 +15,9 @@ import {
   Utensils,
   Package,
   Repeat,
-  Users, // Added for Friends
-  Coffee, // Added for In-Dining
+  Users,
+  Coffee,
+  Link as LinkIcon, // Added for Quick Links in header
 } from 'lucide-react';
 import { useMenu } from '@hooks/useMenu';
 import { useCart } from '@hooks/useCart';
@@ -485,7 +486,6 @@ const CustomerDashboard = () => {
             Good Day, {profile.email}!
           </h1>
           <div css={headerRightStyles}>
-            {/* Existing Links */}
             <Link to="/customer/notifications">
               <Bell size={20} />
             </Link>
@@ -493,7 +493,6 @@ const CustomerDashboard = () => {
               <ShoppingCart size={20} />
               {cart.items.length > 0 && <span css={badgeStyles}>{cart.items.length}</span>}
             </Link>
-            {/* New In-Dining Link */}
             <Link
               to="/customer/in-dining"
               css={headerLinkStyles}
@@ -504,7 +503,6 @@ const CustomerDashboard = () => {
                 <Coffee size={20} css={iconStyles} className="icon" />
               </div>
             </Link>
-            {/* New Friends Link */}
             <Link
               to="/customer/friends"
               css={headerLinkStyles}
@@ -515,7 +513,16 @@ const CustomerDashboard = () => {
                 <Users size={20} css={iconStyles} className="icon" />
               </div>
             </Link>
-            {/* Profile Dropdown */}
+            <Link
+              to="/customer/quick-links" // New Quick Links in header
+              css={headerLinkStyles}
+              className={activeTab === 'quick-links' ? 'active' : ''}
+              onClick={() => setActiveTab('quick-links')}
+            >
+              <div css={iconWrapperStyles} className="icon-wrapper">
+                <LinkIcon size={20} css={iconStyles} className="icon" />
+              </div>
+            </Link>
             <div css={dropdownStyle}>
               <User size={20} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} />
               <div css={dropdownContentStyle} className={profileDropdownOpen ? 'show' : ''}>

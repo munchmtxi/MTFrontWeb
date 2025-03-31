@@ -62,13 +62,14 @@ import MenuPage from '@/pages/customer/MenuPage';
 import CheckoutPage from '@/pages/customer/CheckoutPage';
 import Notifications from '@/pages/customer/Notifications';
 import SubscriptionPage from '@/pages/customer/SubscriptionPage';
-import InDiningPage from '@/pages/customer/InDiningPage'; 
-import FriendsPage from '@/pages/customer/FriendsPage'; 
+import InDiningPage from '@/pages/customer/InDiningPage';
+import FriendsPage from '@/pages/customer/FriendsPage';
+import QuickLinksPage from '@/pages/customer/QuickLinksPage'; // New import
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 
-// Logout Page (Optional)
+// Logout Page
 import Logout from '@/pages/auth/Logout';
 
 const queryClient = new QueryClient({
@@ -461,6 +462,14 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['customer']}>
                       <FriendsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/quick-links"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <QuickLinksPage />
                     </ProtectedRoute>
                   }
                 />
