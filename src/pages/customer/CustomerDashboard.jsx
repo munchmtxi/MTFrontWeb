@@ -15,6 +15,8 @@ import {
   Utensils,
   Package,
   Repeat,
+  Users, // Added for Friends
+  Coffee, // Added for In-Dining
 } from 'lucide-react';
 import { useMenu } from '@hooks/useMenu';
 import { useCart } from '@hooks/useCart';
@@ -124,6 +126,24 @@ const headerRightStyles = css`
     &:hover {
       color: #1dbf1d;
     }
+  }
+`;
+
+// Header link styles (aligned with sidebar)
+const headerLinkStyles = css`
+  display: flex;
+  align-items: center;
+  &.active .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &.active .icon {
+    color: #000;
+  }
+  &:hover .icon-wrapper {
+    background-color: #1dbf1d;
+  }
+  &:hover .icon {
+    color: #000;
   }
 `;
 
@@ -435,7 +455,7 @@ const CustomerDashboard = () => {
           className={activeTab === 'subscriptions' ? 'active' : ''}
         >
           <div css={iconWrapperStyles} className="icon-wrapper">
-            <Repeat size={24} css={iconStyles} className="icon" /> {/* Changed to Repeat */}
+            <Repeat size={24} css={iconStyles} className="icon" />
           </div>
         </Link>
         <Link
@@ -465,6 +485,7 @@ const CustomerDashboard = () => {
             Good Day, {profile.email}!
           </h1>
           <div css={headerRightStyles}>
+            {/* Existing Links */}
             <Link to="/customer/notifications">
               <Bell size={20} />
             </Link>
@@ -472,6 +493,29 @@ const CustomerDashboard = () => {
               <ShoppingCart size={20} />
               {cart.items.length > 0 && <span css={badgeStyles}>{cart.items.length}</span>}
             </Link>
+            {/* New In-Dining Link */}
+            <Link
+              to="/customer/in-dining"
+              css={headerLinkStyles}
+              className={activeTab === 'in-dining' ? 'active' : ''}
+              onClick={() => setActiveTab('in-dining')}
+            >
+              <div css={iconWrapperStyles} className="icon-wrapper">
+                <Coffee size={20} css={iconStyles} className="icon" />
+              </div>
+            </Link>
+            {/* New Friends Link */}
+            <Link
+              to="/customer/friends"
+              css={headerLinkStyles}
+              className={activeTab === 'friends' ? 'active' : ''}
+              onClick={() => setActiveTab('friends')}
+            >
+              <div css={iconWrapperStyles} className="icon-wrapper">
+                <Users size={20} css={iconStyles} className="icon" />
+              </div>
+            </Link>
+            {/* Profile Dropdown */}
             <div css={dropdownStyle}>
               <User size={20} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} />
               <div css={dropdownContentStyle} className={profileDropdownOpen ? 'show' : ''}>

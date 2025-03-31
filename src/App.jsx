@@ -61,7 +61,9 @@ import CartPage from '@/pages/customer/CartPage';
 import MenuPage from '@/pages/customer/MenuPage';
 import CheckoutPage from '@/pages/customer/CheckoutPage';
 import Notifications from '@/pages/customer/Notifications';
-import SubscriptionPage from '@/pages/customer/SubscriptionPage'; // New import
+import SubscriptionPage from '@/pages/customer/SubscriptionPage';
+import InDiningPage from '@/pages/customer/InDiningPage'; 
+import FriendsPage from '@/pages/customer/FriendsPage'; 
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -443,6 +445,22 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['customer']}>
                       <SubscriptionPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/in-dining"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <InDiningPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer/friends"
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <FriendsPage />
                     </ProtectedRoute>
                   }
                 />

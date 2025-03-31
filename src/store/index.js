@@ -22,7 +22,9 @@ import rideReducer from '../features/customer/rideSlice';
 import cartReducer from '../features/customer/cartSlice';
 import menuReducer from '../features/customer/menuSlice';
 import orderReducer from '../features/customer/orderSlice';
-import subscriptionReducer from '../features/customer/subscriptionSlice'; // New import
+import subscriptionReducer from '../features/customer/subscriptionSlice';
+import friendReducer from '../features/customer/friendSlice';
+import inDiningReducer from '../features/customer/inDiningSlice';
 
 const store = configureStore({
   reducer: {
@@ -49,7 +51,9 @@ const store = configureStore({
     cart: cartReducer,
     menu: menuReducer,
     order: orderReducer,
-    subscription: subscriptionReducer, // New reducer
+    subscription: subscriptionReducer,
+    friends: friendReducer,
+    inDining: inDiningReducer,
   },
 });
 
