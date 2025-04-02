@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState } from 'react';
-import { css, useTheme } from '@emotion/react';
+import { css } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -11,17 +11,18 @@ import { customerLogin } from '@/features/auth/customerAuthThunks';
 import { v4 as uuidv4 } from 'uuid';
 import store from '@/store';
 
-// Revamped Header Styles matching our cinematic theme
-const headerStyles = (theme) => css`
+// Styles adapted from DriverPassword
+const headerStyles = css`
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: #000;
-  border-bottom: 1px solid #333;
-  padding: ${theme.spacing[4]} ${theme.spacing[3]};
+  background: #1a202c; /* Dark blue-grey background */
+  padding: 20px;
+  color: #d1d5db; /* Light grey text */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
-const containerStyles = (theme) => css`
+const containerStyles = css`
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
@@ -29,140 +30,141 @@ const containerStyles = (theme) => css`
   align-items: center;
 `;
 
-const logoStyles = (theme) => css`
-  font-family: 'Montserrat', sans-serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+const logoStyles = css`
+  font-size: 24px; /* Approximation of 2xl */
+  font-weight: 600;
+  color: #fedc01; /* Yellow */
 `;
 
-const munchStyles = (theme) => css`color: #1dbf1d;`; // Signature green
-const mStyles = (theme) => css`color: #fedc01;`;         // Signature yellow
-const txiStyles = (theme) => css`color: #ffffff;`;         // White for contrast
-
-const navStyles = (theme) => css`
+const navStyles = css`
   display: flex;
   gap: 1.5rem;
   align-items: center;
 `;
 
-const linkStyles = (theme) => css`
-  color: #ffffff;
+const linkStyles = css`
+  color: #d1d5db;
   text-decoration: none;
-  font-size: 1rem;
-  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
   font-weight: 600;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
   &:hover {
-    color: #1dbf1d;
+    color: #fedc01; /* Yellow on hover */
   }
 `;
 
-const dropdownButtonStyles = (theme) => css`
+const dropdownButtonStyles = css`
   background: none;
   border: none;
-  color: #ffffff;
-  font-size: 1rem;
-  font-family: 'Montserrat', sans-serif;
+  color: #d1d5db;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
   &:hover {
     color: #fedc01;
   }
 `;
 
-const dropdownStyles = (theme) => css`
+const dropdownStyles = css`
   position: absolute;
   top: 110%;
   right: 0;
-  background-color: #111;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  padding: 0.5rem 0;
+  background: #2d3748; /* Dark grey cards */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  padding: 10px 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   z-index: 101;
 `;
 
-const dropdownLinkStyles = (theme) => css`
-  color: #ffffff;
+const dropdownLinkStyles = css`
+  color: #d1d5db;
   text-decoration: none;
-  font-size: 0.875rem;
-  padding: 0.5rem 1rem;
-  transition: background-color 0.2s ease;
+  font-size: 14px;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
   &:hover {
-    background-color: #1dbf1d;
-    color: #000;
+    background: #fedc01; /* Yellow */
+    color: #111827;
   }
 `;
 
-const modalStyles = (theme) => css`
+const modalStyles = css`
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
+  background: #2d3748; /* Dark grey cards */
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 200;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-  color: #333;
+  max-width: 600px; /* Approximation of md container */
+  color: #d1d5db;
 `;
 
-const overlayStyles = (theme) => css`
+const overlayStyles = css`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 150;
 `;
 
-const inputStyles = (theme) => css`
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  background-color: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+const modalHeadingStyles = css`
+  font-size: 24px; /* Approximation of 2xl */
+  font-weight: 600;
+  color: #fedc01; /* Yellow */
+  margin-bottom: 15px;
 `;
 
-const buttonStyles = (theme) => css`
-  padding: 0.75rem;
-  background-color: #1dbf1d;
-  color: #fff;
+const inputStyles = css`
+  display: block;
+  width: 100%;
+  padding: 8px 12px; /* Approximation of md input size */
+  margin-bottom: 15px;
+  background: #1f2937; /* Slightly darker grey */
   border: none;
   border-radius: 4px;
-  width: 100%;
-  font-weight: bold;
+  color: #d1d5db;
+  font-size: 14px;
+`;
+
+const buttonStyles = css`
+  padding: 10px 20px;
+  background: #fedc01; /* Yellow */
+  color: #111827;
+  border-radius: 20px;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  width: 100%;
+  font-weight: 600;
   &:hover {
-    background-color: #fedc01;
-    color: #000;
+    background: #d4b501; /* Slightly darker yellow */
+  }
+  &:disabled {
+    background: #6b7280; /* Grey for disabled state */
+    cursor: not-allowed;
   }
 `;
 
-const closeButtonOverrides = (theme) => css`
-  background-color: #333;
-  margin-top: 0.5rem;
-`;
-
-const errorStyles = (theme) => css`
-  color: red;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+const errorStyles = css`
+  color: #f87171; /* Red for errors */
+  font-size: 14px;
+  margin-top: 10px;
   text-align: center;
 `;
 
-// Motion Variants (unchanged)
+// Motion Variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
@@ -181,47 +183,37 @@ const dropdownVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1.0] } },
 };
 
-// ModalForm Component remains unchanged in functionality but with updated styling
+// ModalForm Component
 const ModalForm = ({ title, onSubmit, onClose, error }) => {
-  const theme = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   return (
     <>
-      <div css={overlayStyles(theme)} onClick={onClose} />
-      <form css={modalStyles(theme)} onSubmit={(e) => onSubmit(e, email, password)}>
-        <h2
-          css={css`
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            color: #333;
-          `}
-        >
-          {title}
-        </h2>
+      <div css={overlayStyles} onClick={onClose} />
+      <form css={modalStyles} onSubmit={(e) => onSubmit(e, email, password)}>
+        <h2 css={modalHeadingStyles}>{title}</h2>
         <input
+          css={inputStyles}
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          css={inputStyles(theme)}
           autoComplete="email"
         />
         <input
+          css={inputStyles}
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          css={inputStyles(theme)}
           autoComplete="current-password"
         />
-        {error && <div css={errorStyles(theme)}>{error}</div>}
-        <button type="submit" css={buttonStyles(theme)} disabled={!!error && error.includes('Too many')}>
+        {error && <div css={errorStyles}>{error}</div>}
+        <button type="submit" css={buttonStyles} disabled={!!error && error.includes('Too many')}>
           Login
         </button>
-        <button type="button" onClick={onClose} css={[buttonStyles(theme), closeButtonOverrides(theme)]}>
+        <button type="button" onClick={onClose} css={buttonStyles}>
           Close
         </button>
       </form>
@@ -229,9 +221,8 @@ const ModalForm = ({ title, onSubmit, onClose, error }) => {
   );
 };
 
-// Header Component with revamped styling
+// Header Component
 const Header = () => {
-  const theme = useTheme();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [partnerDropdownOpen, setPartnerDropdownOpen] = useState(false);
   const [partnerModalOpen, setPartnerModalOpen] = useState(null);
@@ -273,7 +264,7 @@ const Header = () => {
           throw new Error('Unknown role');
       }
       console.log('Login result:', result);
-      await new Promise(resolve => setTimeout(resolve, 0));
+
       const updatedState = store.getState().auth;
       console.log('Redux state after dispatch:', updatedState);
 
@@ -281,6 +272,7 @@ const Header = () => {
       setPartnerModalOpen(null);
 
       const userRole = updatedState.user?.role || result.user.role;
+      console.log('Navigating with role:', userRole);
       switch (userRole) {
         case 'customer':
           navigate('/customer/dashboard');
@@ -298,10 +290,11 @@ const Header = () => {
           navigate('/admin/dashboard');
           break;
         default:
+          console.warn('Unknown role, redirecting to /:', userRole);
           navigate('/');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error details:', error);
       setLoginError(error.message || `${role.charAt(0).toUpperCase() + role.slice(1)} login failed`);
     } finally {
       setIsLoading(false);
@@ -317,47 +310,45 @@ const Header = () => {
 
   return (
     <>
-      <motion.header css={headerStyles(theme)} initial="hidden" animate="visible" variants={containerVariants}>
-        <div css={containerStyles(theme)}>
+      <motion.header css={headerStyles} initial="hidden" animate="visible" variants={containerVariants}>
+        <div css={containerStyles}>
           <motion.div variants={itemVariants}>
-            <Link to="/" css={logoStyles(theme)}>
-              <span css={munchStyles(theme)}>MUNCH</span>
-              <span css={mStyles(theme)}>M</span>
-              <span css={txiStyles(theme)}>TXI</span>
+            <Link to="/" css={logoStyles}>
+              MUNCHMTXI {/* Simplified logo, adjust as needed */}
             </Link>
           </motion.div>
-          <motion.nav css={navStyles(theme)} variants={itemVariants}>
-            <Link to="/features" css={linkStyles(theme)}>Features</Link>
-            <Link to="/contact" css={linkStyles(theme)}>Contact</Link>
-            <button onClick={() => setLoginModalOpen(true)} css={linkStyles(theme)}>Login</button>
+          <motion.nav css={navStyles} variants={itemVariants}>
+            <Link to="/features" css={linkStyles}>Features</Link>
+            <Link to="/contact" css={linkStyles}>Contact</Link>
+            <button onClick={() => setLoginModalOpen(true)} css={linkStyles}>Login</button>
             <div css={css`position: relative;`}>
-              <button onClick={togglePartnerDropdown} css={dropdownButtonStyles(theme)}>
+              <button onClick={togglePartnerDropdown} css={dropdownButtonStyles}>
                 Partner Login
               </button>
               {partnerDropdownOpen && (
                 <motion.div
-                  css={dropdownStyles(theme)}
+                  css={dropdownStyles}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
                   variants={dropdownVariants}
                 >
-                  <button onClick={() => handlePartnerLoginClick('merchant')} css={dropdownLinkStyles(theme)}>
+                  <button onClick={() => handlePartnerLoginClick('merchant')} css={dropdownLinkStyles}>
                     Merchant Login
                   </button>
-                  <button onClick={() => handlePartnerLoginClick('staff')} css={dropdownLinkStyles(theme)}>
+                  <button onClick={() => handlePartnerLoginClick('staff')} css={dropdownLinkStyles}>
                     Staff Login
                   </button>
-                  <button onClick={() => handlePartnerLoginClick('driver')} css={dropdownLinkStyles(theme)}>
+                  <button onClick={() => handlePartnerLoginClick('driver')} css={dropdownLinkStyles}>
                     Driver Login
                   </button>
-                  <button onClick={() => handlePartnerLoginClick('admin')} css={dropdownLinkStyles(theme)}>
+                  <button onClick={() => handlePartnerLoginClick('admin')} css={dropdownLinkStyles}>
                     Admin Login
                   </button>
                 </motion.div>
               )}
             </div>
-            <Link to="/register" css={linkStyles(theme)}>Sign Up</Link>
+            <Link to="/register" css={linkStyles}>Sign Up</Link>
           </motion.nav>
         </div>
       </motion.header>

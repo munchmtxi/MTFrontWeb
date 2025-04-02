@@ -1,41 +1,32 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { css } from '@emotion/react';
-import { Navigate, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '@/features/auth/authSlice';
+import useDriverAvailability from '@/hooks/driver/useDriverAvailability';
 import {
   Map,
   Truck,
   User,
   Bell,
+  Car,
+  DollarSign,
+  Power,
 } from 'lucide-react';
-import DriverHeader from '@/components/driver/DriverHeader';
 
 // Styles using Emotion
 const dashboardStyles = css`
   min-height: 100vh;
-  background: #1a202c; /* Dark blue-grey background */
-  color: #d1d5db; /* Light grey text */
+  background: #1a202c;
+  color: #d1d5db;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   display: flex;
 `;
 
-const driverHeaderStyles = css`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(180deg, #111827 50%, transparent 100%);
-  padding: 10px 20px;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 const sidebarStyles = css`
   width: 80px;
-  background: #111827; /* Black sidebar */
+  background: #111827;
   padding: 20px 0;
   display: flex;
   flex-direction: column;
@@ -45,33 +36,93 @@ const sidebarStyles = css`
 `;
 
 const sidebarLinkStyles = css`
-  color: #6b7280; /* Grey */
+  color: #6b7280;
   transition: color 0.3s ease;
   &:hover, &.active {
-    color: #fedc01; /* Yellow on hover/active */
+    color: #fedc01;
   }
+`;
+
+const switchContainerStyles = css`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+`;
+
+const switchStyles = css`
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  & input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  & .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #6b7280;
+    transition: 0.3s ease;
+    border-radius: 20px;
+  }
+  & .slider:before {
+    position: absolute;
+    content: '';
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #d1d5db;
+    transition: 0.3s ease;
+    border-radius: 50%;
+  }
+  & input:checked + .slider {
+    background-color: #fedc01;
+  }
+  & input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+`;
+
+const switchLabelStyles = css`
+  font-size: 12px;
+  color: #d1d5db;
+  text-align: center;
 `;
 
 const mainContentStyles = css`
   flex: 1;
   padding: 20px;
-  padding-top: 60px; /* Space for the DriverHeader */
 `;
 
 const headerStyles = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #111827; /* Black header */
+  background: #111827;
   padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
 `;
 
 const headerLeftStyles = css`
   display: flex;
   align-items: center;
   gap: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fedc01;
 `;
 
 const headerRightStyles = css`
@@ -83,15 +134,26 @@ const headerRightStyles = css`
   }
 `;
 
-const userStyles = css`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #d1d5db;
-  & img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+const linkStyles = css`
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  margin-right: 15px;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const buttonStyles = css`
+  padding: 6px 12px;
+  background: #4a5568;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+  &:hover {
+    background-color: #718096;
   }
 `;
 
@@ -104,7 +166,7 @@ const actionsStyles = css`
 
 const actionBtnStyles = css`
   padding: 10px 20px;
-  background: #2d3748; /* Dark grey */
+  background: #2d3748;
   color: #d1d5db;
   border-radius: 20px;
   cursor: pointer;
@@ -113,7 +175,7 @@ const actionBtnStyles = css`
   align-items: center;
   gap: 8px;
   &:hover, &.active {
-    background: #fedc01; /* Yellow */
+    background: #fedc01;
     color: #111827;
   }
 `;
@@ -125,7 +187,7 @@ const contentStyles = css`
 `;
 
 const cardStyles = css`
-  background: #2d3748; /* Dark grey cards */
+  background: #2d3748;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -134,7 +196,7 @@ const cardStyles = css`
 const cardHeadingStyles = css`
   font-size: 18px;
   font-weight: 600;
-  color: #fedc01; /* Yellow */
+  color: #fedc01;
   margin-bottom: 15px;
   display: flex;
   align-items: center;
@@ -146,165 +208,120 @@ const cardTextStyles = css`
   color: #d1d5db;
 `;
 
-const routeItemStyles = css`
+const formStyles = css`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: #1f2937; /* Slightly darker grey */
-  border-radius: 6px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 15px;
 `;
 
-const deliveryItemStyles = css`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
+const inputStyles = css`
+  padding: 8px 12px;
   background: #1f2937;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  border: none;
+  border-radius: 4px;
+  color: #d1d5db;
+  font-size: 14px;
 `;
 
-const profileCardStyles = css`
-  grid-column: span 1;
+const submitButtonStyles = css`
+  padding: 10px 20px;
+  background: #fedc01;
+  color: #111827;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    background: #d4b501;
+  }
+  &:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+  }
 `;
 
-const itemTextStyles = css`
-  font-weight: 500;
-  color: #ffffff;
+const statusIndicatorStyles = css`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
 `;
 
-const itemSubtextStyles = css`
-  font-size: 12px;
-  color: #6b7280; /* Grey */
-`;
-
-const statusStyles = (status) => css`
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: capitalize;
-  background-color: #2d3748;
-  color: ${status === 'completed' ? '#d1d5db' : status === 'en route' ? '#1dbf1d' : '#fedc01'};
-`;
-
-// DriverDashboard Component
 const DriverDashboard = () => {
   const { user, token } = useSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState('overview');
+  const driverId = user?.driver_profile?.id;
+  const [activeTab, setActiveTab] = useState('deliveries');
+  const [hasFetchedAvailability, setHasFetchedAvailability] = useState(false); // Guard flag
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {
+    isOnline,
+    loading,
+    toggleStatus,
+    getAvailability,
+  } = useDriverAvailability(driverId);
 
-  // Sample data for driver
-  const routes = [
-    { id: 'RTE-001', destination: '123 Main St', time: '10:00 AM', status: 'Pending' },
-    { id: 'RTE-002', destination: '456 Oak Ave', time: '12:00 PM', status: 'En Route' },
-  ];
+  // Debounced fetch function to prevent rapid calls
+  const debounceFetch = useCallback(() => {
+    console.log('Fetching availability for driverId:', driverId);
+    getAvailability();
+    setHasFetchedAvailability(true);
+  }, [driverId, getAvailability]);
 
-  const deliveries = [
-    { id: 'DEL-001', orderId: 'ORD-7291', customer: 'John Smith', status: 'En Route' },
-    { id: 'DEL-002', orderId: 'ORD-7290', customer: 'Maria Chen', status: 'Completed' },
-  ];
+  useEffect(() => {
+    if (driverId && !hasFetchedAvailability) {
+      console.log('useEffect triggered - Initial fetch', { driverId, hasFetchedAvailability });
+      debounceFetch();
+    }
+  }, [driverId, debounceFetch, hasFetchedAvailability]); // Stable dependencies
 
-  const profile = {
-    name: user?.email,
-    role: 'Driver',
-    joined: 'Mar 2023',
-    deliveries: '120 this month',
-  };
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('isOnline changed:', isOnline);
+  }, [isOnline]);
 
-  // Redirect if not authenticated or not a driver
   if (!token || user?.role !== 'driver') {
+    console.log('Redirecting: No token or not driver', { token, role: user?.role });
     return <Navigate to="/" replace />;
   }
 
-  // Render content based on active tab
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  const handleAvailabilityToggle = () => {
+    console.log('Toggling availability from:', isOnline, 'to:', !isOnline);
+    toggleStatus(!isOnline);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return (
-          <div css={contentStyles}>
-            {/* Routes Card */}
-            <div css={cardStyles}>
-              <h3 css={cardHeadingStyles}><Map size={20} /> Routes</h3>
-              {routes.map((route) => (
-                <div key={route.id} css={routeItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{route.destination}</p>
-                    <p css={itemSubtextStyles}>{route.time}</p>
-                  </div>
-                  <div css={statusStyles(route.status.toLowerCase())}>{route.status}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Deliveries Card */}
-            <div css={cardStyles}>
-              <h3 css={cardHeadingStyles}><Truck size={20} /> Deliveries</h3>
-              {deliveries.map((delivery) => (
-                <div key={delivery.id} css={deliveryItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{delivery.orderId}</p>
-                    <p css={itemSubtextStyles}>{delivery.customer}</p>
-                  </div>
-                  <div css={statusStyles(delivery.status.toLowerCase())}>{delivery.status}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Profile Card */}
-            <div css={[cardStyles, profileCardStyles]}>
-              <h3 css={cardHeadingStyles}><User size={20} /> Profile</h3>
-              <p css={cardTextStyles}>Name: {profile.name}</p>
-              <p css={cardTextStyles}>Role: {profile.role}</p>
-              <p css={cardTextStyles}>Joined: {profile.joined}</p>
-              <p css={cardTextStyles}>Deliveries: {profile.deliveries}</p>
-            </div>
-          </div>
-        );
-      case 'routes':
-        return (
-          <div css={contentStyles}>
-            <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-              <h3 css={cardHeadingStyles}><Map size={20} /> All Routes</h3>
-              {routes.map((route) => (
-                <div key={route.id} css={routeItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{route.destination}</p>
-                    <p css={itemSubtextStyles}>{route.time}</p>
-                  </div>
-                  <div css={statusStyles(route.status.toLowerCase())}>{route.status}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
       case 'deliveries':
         return (
           <div css={contentStyles}>
-            <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-              <h3 css={cardHeadingStyles}><Truck size={20} /> All Deliveries</h3>
-              {deliveries.map((delivery) => (
-                <div key={delivery.id} css={deliveryItemStyles}>
-                  <div>
-                    <p css={itemTextStyles}>{delivery.orderId}</p>
-                    <p css={itemSubtextStyles}>{delivery.customer}</p>
-                  </div>
-                  <div css={statusStyles(delivery.status.toLowerCase())}>{delivery.status}</div>
-                </div>
-              ))}
+            <div css={cardStyles}>
+              <h3 css={cardHeadingStyles}><Truck size={20} /> Order Delivery Process</h3>
+              <p css={cardTextStyles}>View and manage your delivery orders here.</p>
             </div>
           </div>
         );
-      case 'profile':
+      case 'rides':
         return (
           <div css={contentStyles}>
-            <div css={cardStyles} style={{ gridColumn: 'span 2' }}>
-              <h3 css={cardHeadingStyles}><User size={20} /> Profile Details</h3>
-              <p css={cardTextStyles}>Name: {profile.name}</p>
-              <p css={cardTextStyles}>Role: {profile.role}</p>
-              <p css={cardTextStyles}>Joined: {profile.joined}</p>
-              <p css={cardTextStyles}>Deliveries: {profile.deliveries}</p>
+            <div css={cardStyles}>
+              <h3 css={cardHeadingStyles}><Car size={20} /> Ride-Hailing Process</h3>
+              <p css={cardTextStyles}>Manage your ride-hailing tasks here.</p>
+            </div>
+          </div>
+        );
+      case 'earnings':
+        return (
+          <div css={contentStyles}>
+            <div css={cardStyles}>
+              <h3 css={cardHeadingStyles}><DollarSign size={20} /> Driver Payments & Earnings</h3>
+              <p css={cardTextStyles}>Check your earnings, payments, and tips here.</p>
             </div>
           </div>
         );
@@ -315,57 +332,49 @@ const DriverDashboard = () => {
 
   return (
     <div css={dashboardStyles}>
-      {/* DriverHeader */}
-      <div css={driverHeaderStyles}>
-        <DriverHeader />
-      </div>
-
-      {/* Sidebar */}
       <div css={sidebarStyles}>
-        <Link to="#" onClick={() => setActiveTab('overview')} css={sidebarLinkStyles} className={activeTab === 'overview' ? 'active' : ''}>
-          <Map size={24} />
-        </Link>
-        <Link to="#" onClick={() => setActiveTab('routes')} css={sidebarLinkStyles} className={activeTab === 'routes' ? 'active' : ''}>
-          <Map size={24} />
-        </Link>
         <Link to="#" onClick={() => setActiveTab('deliveries')} css={sidebarLinkStyles} className={activeTab === 'deliveries' ? 'active' : ''}>
           <Truck size={24} />
         </Link>
-        <Link to="#" onClick={() => setActiveTab('profile')} css={sidebarLinkStyles} className={activeTab === 'profile' ? 'active' : ''}>
-          <User size={24} />
+        <Link to="#" onClick={() => setActiveTab('rides')} css={sidebarLinkStyles} className={activeTab === 'rides' ? 'active' : ''}>
+          <Car size={24} />
         </Link>
+        <Link to="#" onClick={() => setActiveTab('earnings')} css={sidebarLinkStyles} className={activeTab === 'earnings' ? 'active' : ''}>
+          <DollarSign size={24} />
+        </Link>
+        <div css={switchContainerStyles}>
+          <label css={switchStyles}>
+            <input
+              type="checkbox"
+              checked={isOnline}
+              onChange={handleAvailabilityToggle}
+              disabled={loading}
+            />
+            <span className="slider"></span>
+          </label>
+          <span css={switchLabelStyles}>{isOnline ? 'Online' : 'Offline'}</span>
+        </div>
       </div>
-
-      {/* Main Content */}
       <div css={mainContentStyles}>
-        {/* Header */}
         <div css={headerStyles}>
-          <div css={headerLeftStyles}>
-            <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#fedc01' }}>Driver Dashboard</h1>
-          </div>
+          <div css={headerLeftStyles}>Driver Dashboard</div>
           <div css={headerRightStyles}>
+            <Link to="/driver/profile" css={linkStyles}>Profile</Link>
+            <button onClick={handleLogout} css={buttonStyles}>Logout</button>
             <Bell size={20} />
-            <div css={userStyles}>
-              <img src="https://via.placeholder.com/32" alt="User" />
-              <span>{user?.email}</span>
-            </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
         <div css={actionsStyles}>
-          <div onClick={() => setActiveTab('routes')} css={actionBtnStyles}>
-            <Map size={16} /> View Routes
-          </div>
           <div onClick={() => setActiveTab('deliveries')} css={actionBtnStyles}>
-            <Truck size={16} /> Manage Deliveries
+            <Truck size={16} /> Deliveries
           </div>
-          <div onClick={() => setActiveTab('profile')} css={actionBtnStyles}>
-            <User size={16} /> View Profile
+          <div onClick={() => setActiveTab('rides')} css={actionBtnStyles}>
+            <Car size={16} /> Rides
+          </div>
+          <div onClick={() => setActiveTab('earnings')} css={actionBtnStyles}>
+            <DollarSign size={16} /> Earnings
           </div>
         </div>
-
-        {/* Content */}
         {renderContent()}
       </div>
     </div>

@@ -64,7 +64,7 @@ import Notifications from '@/pages/customer/Notifications';
 import SubscriptionPage from '@/pages/customer/SubscriptionPage';
 import InDiningPage from '@/pages/customer/InDiningPage';
 import FriendsPage from '@/pages/customer/FriendsPage';
-import QuickLinksPage from '@/pages/customer/QuickLinksPage'; // New import
+import QuickLinksPage from '@/pages/customer/QuickLinksPage';
 
 // Admin Pages
 import AdminDashboard from '@/pages/admin/AdminDashboard';

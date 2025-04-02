@@ -25,7 +25,8 @@ import orderReducer from '../features/customer/orderSlice';
 import subscriptionReducer from '../features/customer/subscriptionSlice';
 import friendReducer from '../features/customer/friendSlice';
 import inDiningReducer from '../features/customer/inDiningSlice';
-import quickLinkReducer from '../features/customer/quickLinkSlice'; // New import
+import quickLinkReducer from '../features/customer/quickLinkSlice';
+import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlice'; 
 
 const store = configureStore({
   reducer: {
@@ -55,7 +56,8 @@ const store = configureStore({
     subscription: subscriptionReducer,
     friends: friendReducer,
     inDining: inDiningReducer,
-    quickLink: quickLinkReducer, 
+    quickLink: quickLinkReducer,
+    driverAvailability: driverAvailabilityReducer, 
   },
 });
 
