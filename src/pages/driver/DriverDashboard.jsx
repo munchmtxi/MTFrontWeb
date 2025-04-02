@@ -5,6 +5,7 @@ import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/features/auth/authSlice';
 import useDriverAvailability from '@/hooks/driver/useDriverAvailability';
+import useDriverOrders from '@/hooks/driver/useDriverOrders';
 import {
   Map,
   Truck,
@@ -208,21 +209,6 @@ const cardTextStyles = css`
   color: #d1d5db;
 `;
 
-const formStyles = css`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-`;
-
-const inputStyles = css`
-  padding: 8px 12px;
-  background: #1f2937;
-  border: none;
-  border-radius: 4px;
-  color: #d1d5db;
-  font-size: 14px;
-`;
-
 const submitButtonStyles = css`
   padding: 10px 20px;
   background: #fedc01;
@@ -240,26 +226,15 @@ const submitButtonStyles = css`
   }
 `;
 
-const statusIndicatorStyles = css`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-`;
-
 const DriverDashboard = () => {
   const { user, token } = useSelector((state) => state.auth);
   const driverId = user?.driver_profile?.id;
   const [activeTab, setActiveTab] = useState('deliveries');
-  const [hasFetchedAvailability, setHasFetchedAvailability] = useState(false); // Guard flag
+  const [hasFetchedAvailability, setHasFetchedAvailability] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    isOnline,
-    loading,
-    toggleStatus,
-    getAvailability,
-  } = useDriverAvailability(driverId);
+  const { isOnline, loading: availabilityLoading, toggleStatus, getAvailability } = useDriverAvailability(driverId);
+  const { orders, loading: ordersLoading, error, assignOrder, confirmPickup, trackDelivery, completeOrder, fetchOrders } = useDriverOrders(driverId);
 
   // Debounced fetch function to prevent rapid calls
   const debounceFetch = useCallback(() => {
@@ -273,7 +248,7 @@ const DriverDashboard = () => {
       console.log('useEffect triggered - Initial fetch', { driverId, hasFetchedAvailability });
       debounceFetch();
     }
-  }, [driverId, debounceFetch, hasFetchedAvailability]); // Stable dependencies
+  }, [driverId, debounceFetch, hasFetchedAvailability]);
 
   // Log state changes for debugging
   useEffect(() => {
@@ -303,7 +278,46 @@ const DriverDashboard = () => {
           <div css={contentStyles}>
             <div css={cardStyles}>
               <h3 css={cardHeadingStyles}><Truck size={20} /> Order Delivery Process</h3>
-              <p css={cardTextStyles}>View and manage your delivery orders here.</p>
+              {ordersLoading ? (
+                <p css={cardTextStyles}>Loading orders...</p>
+              ) : error ? (
+                <p css={cardTextStyles}>Error: {error.message || 'Failed to load orders'}</p>
+              ) : (
+                <div>
+                  {orders.length === 0 ? (
+                    <p css={cardTextStyles}>No orders assigned yet.</p>
+                  ) : (
+                    orders.map((order) => (
+                      <div key={order.id} css={cardStyles} style={{ marginTop: '10px' }}>
+                        <p css={cardTextStyles}>Order #{order.id} - Status: {order.status}</p>
+                        <div css={actionsStyles}>
+                          {order.status === 'ASSIGNED' && (
+                            <button css={submitButtonStyles} onClick={() => confirmPickup(order.id)}>
+                              Confirm Pickup
+                            </button>
+                          )}
+                          {order.status === 'OUT_FOR_DELIVERY' && (
+                            <>
+                              <button
+                                css={submitButtonStyles}
+                                onClick={() => trackDelivery(order.id, { lat: 0, lng: 0 })} // Replace with real location
+                              >
+                                Update Location
+                              </button>
+                              <button css={submitButtonStyles} onClick={() => completeOrder(order.id)}>
+                                Complete Delivery
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  <button css={submitButtonStyles} onClick={() => fetchOrders()} style={{ marginTop: '20px' }}>
+                    Refresh Orders
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -348,7 +362,7 @@ const DriverDashboard = () => {
               type="checkbox"
               checked={isOnline}
               onChange={handleAvailabilityToggle}
-              disabled={loading}
+              disabled={availabilityLoading}
             />
             <span className="slider"></span>
           </label>
@@ -365,13 +379,13 @@ const DriverDashboard = () => {
           </div>
         </div>
         <div css={actionsStyles}>
-          <div onClick={() => setActiveTab('deliveries')} css={actionBtnStyles}>
+          <div onClick={() => setActiveTab('deliveries')} css={actionBtnStyles} className={activeTab === 'deliveries' ? 'active' : ''}>
             <Truck size={16} /> Deliveries
           </div>
-          <div onClick={() => setActiveTab('rides')} css={actionBtnStyles}>
+          <div onClick={() => setActiveTab('rides')} css={actionBtnStyles} className={activeTab === 'rides' ? 'active' : ''}>
             <Car size={16} /> Rides
           </div>
-          <div onClick={() => setActiveTab('earnings')} css={actionBtnStyles}>
+          <div onClick={() => setActiveTab('earnings')} css={actionBtnStyles} className={activeTab === 'earnings' ? 'active' : ''}>
             <DollarSign size={16} /> Earnings
           </div>
         </div>

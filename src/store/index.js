@@ -27,6 +27,7 @@ import friendReducer from '../features/customer/friendSlice';
 import inDiningReducer from '../features/customer/inDiningSlice';
 import quickLinkReducer from '../features/customer/quickLinkSlice';
 import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlice'; 
+import driverOrderReducer from '../features/driver/driverOrderSlice';
 
 const store = configureStore({
   reducer: {
@@ -58,6 +59,7 @@ const store = configureStore({
     inDining: inDiningReducer,
     quickLink: quickLinkReducer,
     driverAvailability: driverAvailabilityReducer, 
+    driverOrders: driverOrderReducer,
   },
 });
 
