@@ -13,9 +13,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'), // Maps '@' to 'src/'
-      '@hooks': path.resolve(__dirname, 'src/hooks'), // Maps '@hooks' to 'src/hooks/'
-      '@api': path.resolve(__dirname, 'src/api'), // Add this for API files
+      '@': path.resolve(__dirname, 'src'),
+      '@hooks': path.resolve(__dirname, 'src/hooks'),
+      '@api': path.resolve(__dirname, 'src/api'),
+      '@features': path.resolve(__dirname, 'src/features'), // Add this
     },
   },
   server: {

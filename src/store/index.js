@@ -29,6 +29,7 @@ import quickLinkReducer from '../features/customer/quickLinkSlice';
 import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlice'; 
 import driverOrderReducer from '../features/driver/driverOrderSlice';
 import driverRideReducer from '../features/driver/driverRideSlice';
+import driverPaymentReducer from '../features/driver/driverPaymentSlice';
 
 const store = configureStore({
   reducer: {
@@ -62,6 +63,7 @@ const store = configureStore({
     quickLink: quickLinkReducer,
     driverAvailability: driverAvailabilityReducer, 
     driverOrders: driverOrderReducer,
+    driverPayment: driverPaymentReducer,
   },
 });
 

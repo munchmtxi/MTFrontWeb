@@ -7,6 +7,7 @@ import { logout } from '@/features/auth/authSlice'; // Direct logout action
 import useDriverAvailability from '@/hooks/driver/useDriverAvailability';
 import useDriverOrders from '@/hooks/driver/useDriverOrders';
 import { useDriverRide } from '@/hooks/driver/useDriverRide';
+import useDriverPayments from '@hooks/driver/useDriverPayments';
 import {
   Map,
   Truck,
@@ -230,13 +231,14 @@ const submitButtonStyles = css`
 const DriverDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, token } = useSelector((state) => state.auth); // Direct Redux access
+  const { user, token } = useSelector((state) => state.auth);
   const driverId = user?.driver_profile?.id;
   const [activeTab, setActiveTab] = useState('deliveries');
   const [hasFetchedAvailability, setHasFetchedAvailability] = useState(false);
   const { isOnline, loading: availabilityLoading, toggleStatus, getAvailability } = useDriverAvailability(driverId);
   const { orders, loading: ordersLoading, error: ordersError, fetchOrders, confirmPickup, trackDelivery, completeOrder } = useDriverOrders(driverId);
   const { activeRide, driverLocation, status: rideStatus, error: rideError, fetchRide, updateDriverLoc, accept, complete } = useDriverRide();
+  const { earnings, lastTipPayment, lastPayout, status: paymentStatus, error: paymentError, fetchEarnings, addTip, requestPayout } = useDriverPayments(); // Add this
 
   const debounceFetchAvailability = useCallback(() => {
     console.log('Fetching availability for driverId:', driverId);
@@ -250,17 +252,13 @@ const DriverDashboard = () => {
     }
   }, [driverId, debounceFetchAvailability, hasFetchedAvailability]);
 
-  useEffect(() => {
-    console.log('isOnline changed:', isOnline);
-  }, [isOnline]);
-
   if (!token || user?.role !== 'driver') {
     console.log('Redirecting: No token or not driver', { token, role: user?.role });
     return <Navigate to="/" replace />;
   }
 
   const handleLogout = () => {
-    dispatch(logout()); // Use Redux logout action directly
+    dispatch(logout());
     localStorage.removeItem('token');
     navigate('/');
   };
@@ -280,9 +278,27 @@ const DriverDashboard = () => {
     );
   };
 
+  const handleTipSubmit = (e) => {
+    e.preventDefault();
+    const paymentId = parseInt(e.target.paymentId.value, 10);
+    const amount = parseFloat(e.target.amount.value);
+    addTip(paymentId, { amount });
+  };
+
+  const handlePayoutRequest = (e) => {
+    e.preventDefault();
+    const amount = parseFloat(e.target.payoutAmount.value);
+    if (amount > earnings.total_earned) {
+      alert('Payout amount exceeds total earnings!');
+      return;
+    }
+    requestPayout(amount);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'deliveries':
+        // Unchanged deliveries content
         return (
           <div css={contentStyles}>
             <div css={cardStyles}>
@@ -331,6 +347,7 @@ const DriverDashboard = () => {
           </div>
         );
       case 'rides':
+        // Unchanged rides content
         return (
           <div css={contentStyles}>
             <div css={cardStyles}>
@@ -379,7 +396,83 @@ const DriverDashboard = () => {
           <div css={contentStyles}>
             <div css={cardStyles}>
               <h3 css={cardHeadingStyles}><DollarSign size={20} /> Driver Payments & Earnings</h3>
-              <p css={cardTextStyles}>Check your earnings, payments, and tips here.</p>
+              <button
+                css={submitButtonStyles}
+                onClick={fetchEarnings}
+                disabled={paymentStatus === 'loading'}
+              >
+                Fetch Earnings
+              </button>
+              {paymentStatus === 'loading' && <p css={cardTextStyles}>Loading...</p>}
+              {earnings.total_earned !== 0 && (
+                <div style={{ marginTop: '15px' }}>
+                  <p css={cardTextStyles}>Total Earned: ${parseFloat(earnings.total_earned).toFixed(2)}</p>
+                  <p css={cardTextStyles}>Last Updated: {new Date(earnings.updated_at).toLocaleString()}</p>
+                </div>
+              )}
+              {paymentError && (
+                <p css={cardTextStyles} style={{ color: '#ef4444' }}>
+                  Error: {paymentError.message || 'Failed to load earnings'}
+                </p>
+              )}
+
+              <form onSubmit={handleTipSubmit} style={{ marginTop: '20px' }}>
+                <h4 css={cardHeadingStyles}>Add Tip</h4>
+                <input
+                  type="number"
+                  name="paymentId"
+                  placeholder="Payment ID"
+                  required
+                  css={css`padding: 8px; margin-right: 10px; border-radius: 4px;`}
+                />
+                <input
+                  type="number"
+                  name="amount"
+                  placeholder="Tip Amount"
+                  step="0.01"
+                  min="0"
+                  required
+                  css={css`padding: 8px; margin-right: 10px; border-radius: 4px;`}
+                />
+                <button
+                  type="submit"
+                  css={submitButtonStyles}
+                  disabled={paymentStatus === 'loading'}
+                >
+                  Add Tip
+                </button>
+                {lastTipPayment && (
+                  <p css={cardTextStyles} style={{ marginTop: '10px' }}>
+                    Added ${lastTipPayment.tip_amount} to Payment #{lastTipPayment.id}
+                  </p>
+                )}
+              </form>
+
+              <form onSubmit={handlePayoutRequest} style={{ marginTop: '20px' }}>
+                <h4 css={cardHeadingStyles}>Request Payout</h4>
+                <input
+                  type="number"
+                  name="payoutAmount"
+                  placeholder="Payout Amount"
+                  step="0.01"
+                  min="0"
+                  required
+                  css={css`padding: 8px; margin-right: 10px; border-radius: 4px;`}
+                />
+                <button
+                  type="submit"
+                  css={submitButtonStyles}
+                  disabled={paymentStatus === 'loading' || earnings.total_earned === 0}
+                >
+                  Request Payout
+                </button>
+                {lastPayout && (
+                  <p css={cardTextStyles} style={{ marginTop: '10px' }}>
+                    Payout of ${lastPayout.amount} (Transaction #{lastPayout.transaction_id}) processed at{' '}
+                    {new Date(lastPayout.processed_at).toLocaleString()}
+                  </p>
+                )}
+              </form>
             </div>
           </div>
         );
