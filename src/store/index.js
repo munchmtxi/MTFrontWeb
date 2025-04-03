@@ -28,11 +28,13 @@ import inDiningReducer from '../features/customer/inDiningSlice';
 import quickLinkReducer from '../features/customer/quickLinkSlice';
 import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlice'; 
 import driverOrderReducer from '../features/driver/driverOrderSlice';
+import driverRideReducer from '../features/driver/driverRideSlice';
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     socket: socketReducer,
+    driverRide: driverRideReducer,
     merchantProfile: merchantProfileReducer,
     banner: bannerReducer,
     activityLog: activityLogReducer,

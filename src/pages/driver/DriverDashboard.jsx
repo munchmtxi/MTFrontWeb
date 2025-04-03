@@ -3,9 +3,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { css } from '@emotion/react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '@/features/auth/authSlice';
+import { logout } from '@/features/auth/authSlice'; // Direct logout action
 import useDriverAvailability from '@/hooks/driver/useDriverAvailability';
 import useDriverOrders from '@/hooks/driver/useDriverOrders';
+import { useDriverRide } from '@/hooks/driver/useDriverRide';
 import {
   Map,
   Truck,
@@ -227,17 +228,17 @@ const submitButtonStyles = css`
 `;
 
 const DriverDashboard = () => {
-  const { user, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, token } = useSelector((state) => state.auth); // Direct Redux access
   const driverId = user?.driver_profile?.id;
   const [activeTab, setActiveTab] = useState('deliveries');
   const [hasFetchedAvailability, setHasFetchedAvailability] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { isOnline, loading: availabilityLoading, toggleStatus, getAvailability } = useDriverAvailability(driverId);
-  const { orders, loading: ordersLoading, error, assignOrder, confirmPickup, trackDelivery, completeOrder, fetchOrders } = useDriverOrders(driverId);
+  const { orders, loading: ordersLoading, error: ordersError, fetchOrders, confirmPickup, trackDelivery, completeOrder } = useDriverOrders(driverId);
+  const { activeRide, driverLocation, status: rideStatus, error: rideError, fetchRide, updateDriverLoc, accept, complete } = useDriverRide();
 
-  // Debounced fetch function to prevent rapid calls
-  const debounceFetch = useCallback(() => {
+  const debounceFetchAvailability = useCallback(() => {
     console.log('Fetching availability for driverId:', driverId);
     getAvailability();
     setHasFetchedAvailability(true);
@@ -245,12 +246,10 @@ const DriverDashboard = () => {
 
   useEffect(() => {
     if (driverId && !hasFetchedAvailability) {
-      console.log('useEffect triggered - Initial fetch', { driverId, hasFetchedAvailability });
-      debounceFetch();
+      debounceFetchAvailability();
     }
-  }, [driverId, debounceFetch, hasFetchedAvailability]);
+  }, [driverId, debounceFetchAvailability, hasFetchedAvailability]);
 
-  // Log state changes for debugging
   useEffect(() => {
     console.log('isOnline changed:', isOnline);
   }, [isOnline]);
@@ -261,7 +260,7 @@ const DriverDashboard = () => {
   }
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logout()); // Use Redux logout action directly
     localStorage.removeItem('token');
     navigate('/');
   };
@@ -269,6 +268,16 @@ const DriverDashboard = () => {
   const handleAvailabilityToggle = () => {
     console.log('Toggling availability from:', isOnline, 'to:', !isOnline);
     toggleStatus(!isOnline);
+  };
+
+  const handleLocationUpdate = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+        updateDriverLoc(location);
+      },
+      (err) => console.error('Geolocation error:', err)
+    );
   };
 
   const renderContent = () => {
@@ -280,8 +289,8 @@ const DriverDashboard = () => {
               <h3 css={cardHeadingStyles}><Truck size={20} /> Order Delivery Process</h3>
               {ordersLoading ? (
                 <p css={cardTextStyles}>Loading orders...</p>
-              ) : error ? (
-                <p css={cardTextStyles}>Error: {error.message || 'Failed to load orders'}</p>
+              ) : ordersError ? (
+                <p css={cardTextStyles}>Error: {ordersError.message || 'Failed to load orders'}</p>
               ) : (
                 <div>
                   {orders.length === 0 ? (
@@ -300,7 +309,7 @@ const DriverDashboard = () => {
                             <>
                               <button
                                 css={submitButtonStyles}
-                                onClick={() => trackDelivery(order.id, { lat: 0, lng: 0 })} // Replace with real location
+                                onClick={() => trackDelivery(order.id, { lat: 0, lng: 0 })}
                               >
                                 Update Location
                               </button>
@@ -326,7 +335,42 @@ const DriverDashboard = () => {
           <div css={contentStyles}>
             <div css={cardStyles}>
               <h3 css={cardHeadingStyles}><Car size={20} /> Ride-Hailing Process</h3>
-              <p css={cardTextStyles}>Manage your ride-hailing tasks here.</p>
+              {rideStatus === 'loading' ? (
+                <p css={cardTextStyles}>Loading ride...</p>
+              ) : rideError ? (
+                <p css={cardTextStyles}>Error: {rideError}</p>
+              ) : activeRide ? (
+                <div>
+                  <p css={cardTextStyles}>Ride #{activeRide.id} - Status: {activeRide.status}</p>
+                  <p css={cardTextStyles}>Pickup: {activeRide.pickupLocation?.address || 'N/A'}</p>
+                  <p css={cardTextStyles}>Dropoff: {activeRide.dropoffLocation?.address || 'N/A'}</p>
+                  {driverLocation && (
+                    <p css={cardTextStyles}>Current Location: {driverLocation.lat}, {driverLocation.lng}</p>
+                  )}
+                  <div css={actionsStyles}>
+                    <button css={submitButtonStyles} onClick={handleLocationUpdate}>
+                      Update Location
+                    </button>
+                    {activeRide.status === 'ACCEPTED' && (
+                      <button css={submitButtonStyles} onClick={() => accept(activeRide.id)}>
+                        Accept Ride
+                      </button>
+                    )}
+                    {activeRide.status === 'IN_PROGRESS' && (
+                      <button css={submitButtonStyles} onClick={() => complete(activeRide.id)}>
+                        Complete Ride
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p css={cardTextStyles}>No active ride assigned.</p>
+                  <button css={submitButtonStyles} onClick={fetchRide}>
+                    Check for Active Ride
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         );
