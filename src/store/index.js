@@ -30,6 +30,7 @@ import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlic
 import driverOrderReducer from '../features/driver/driverOrderSlice';
 import driverRideReducer from '../features/driver/driverRideSlice';
 import driverPaymentReducer from '../features/driver/driverPaymentSlice';
+import staffAvailabilityReducer from '../features/staff/staffAvailabilitySlice';
 
 const store = configureStore({
   reducer: {
@@ -64,6 +65,7 @@ const store = configureStore({
     driverAvailability: driverAvailabilityReducer, 
     driverOrders: driverOrderReducer,
     driverPayment: driverPaymentReducer,
+    staffAvailability: staffAvailabilityReducer,
   },
 });
 
