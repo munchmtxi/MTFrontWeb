@@ -26,11 +26,12 @@ import subscriptionReducer from '../features/customer/subscriptionSlice';
 import friendReducer from '../features/customer/friendSlice';
 import inDiningReducer from '../features/customer/inDiningSlice';
 import quickLinkReducer from '../features/customer/quickLinkSlice';
-import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlice'; 
+import driverAvailabilityReducer from '../features/driver/driverAvailabilitySlice';
 import driverOrderReducer from '../features/driver/driverOrderSlice';
 import driverRideReducer from '../features/driver/driverRideSlice';
 import driverPaymentReducer from '../features/driver/driverPaymentSlice';
 import staffAvailabilityReducer from '../features/staff/staffAvailabilitySlice';
+import performanceIncentiveReducer from '../features/staff/performanceIncentiveSlice'; 
 
 const store = configureStore({
   reducer: {
@@ -62,10 +63,11 @@ const store = configureStore({
     friends: friendReducer,
     inDining: inDiningReducer,
     quickLink: quickLinkReducer,
-    driverAvailability: driverAvailabilityReducer, 
+    driverAvailability: driverAvailabilityReducer,
     driverOrders: driverOrderReducer,
     driverPayment: driverPaymentReducer,
     staffAvailability: staffAvailabilityReducer,
+    performanceIncentive: performanceIncentiveReducer, 
   },
 });
 

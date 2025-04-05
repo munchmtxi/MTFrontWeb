@@ -1,13 +1,14 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/features/auth/authSlice';
 import { useStaffAvailability } from '@/hooks/staff/useStaffAvailability';
-import { Calendar, CheckSquare, User, Bell } from 'lucide-react';
+import { usePerformanceIncentive } from '@/hooks/staff/usePerformanceIncentive';
+import { Calendar, CheckSquare, User, Bell, Award } from 'lucide-react';
 
-// Responsive Styles
+// Responsive Styles (unchanged)
 const dashboardStyles = css`
   min-height: 100vh;
   background: #1a202c;
@@ -103,7 +104,7 @@ const switchLabelStyles = css`
 const mainContentStyles = css`
   flex: 1;
   padding: 20px;
-  padding-bottom: 70px; /* Space for fixed sidebar on mobile */
+  padding-bottom: 70px;
   @media (min-width: 768px) {
     padding-bottom: 20px;
   }
@@ -216,12 +217,60 @@ const cardTextStyles = css`
   color: #d1d5db;
 `;
 
+const redeemFormStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+`;
+
+const selectStyles = css`
+  padding: 8px;
+  background: #4a5568;
+  color: #d1d5db;
+  border: none;
+  border-radius: 4px;
+`;
+
+const inputStyles = css`
+  padding: 8px;
+  background: #4a5568;
+  color: #d1d5db;
+  border: none;
+  border-radius: 4px;
+`;
+
 const StaffDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, token } = useSelector((state) => state.auth);
-  const { status, loading, setAvailability } = useStaffAvailability();
+  const { status, loading: availabilityLoading, setAvailability } = useStaffAvailability();
+  const {
+    metrics,
+    points,
+    tier,
+    redemptionHistory,
+    loading: perfLoading,
+    error,
+    getMetrics,
+    calculate,
+    assign,
+    redeem,
+  } = usePerformanceIncentive();
   const [activeTab, setActiveTab] = useState('tasks');
+  const [rewardType, setRewardType] = useState('gift_card');
+  const [pointsToRedeem, setPointsToRedeem] = useState('');
+  const [hasFetchedMetrics, setHasFetchedMetrics] = useState(false); // New flag
+
+  const staffId = user?.id; // Assuming user.id is the staffId
+
+  // Fetch metrics only once when the component mounts and staffId is available
+  useEffect(() => {
+    if (staffId && !hasFetchedMetrics) {
+      getMetrics(staffId);
+      setHasFetchedMetrics(true); // Set flag to prevent re-fetching
+    }
+  }, [staffId, getMetrics, hasFetchedMetrics]);
 
   const profile = {
     name: user?.email || 'Unknown',
@@ -245,14 +294,30 @@ const StaffDashboard = () => {
     setAvailability(newStatus);
   };
 
+  const handleCalculateRewards = () => {
+    if (staffId) calculate(staffId);
+  };
+
+  const handleAssignTier = () => {
+    if (staffId) assign(staffId);
+  };
+
+  const handleRedeemRewards = (e) => {
+    e.preventDefault();
+    if (staffId && pointsToRedeem > 0) {
+      redeem(staffId, rewardType, Number(pointsToRedeem));
+      setPointsToRedeem('');
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'tasks':
         return (
           <div css={contentStyles}>
             <div css={cardStyles}>
-              <h3 css={cardHeadingStyles}><CheckSquare size={18} /> Tasks</h3>
-              <p css={cardTextStyles}>{loading ? 'Loading...' : 'Task list coming soon...'}</p>
+              <h3 css={cardHeadingStyles}><CheckSquare size={18} /> Tasks  Tasks</h3>
+              <p css={cardTextStyles}>{availabilityLoading ? 'Loading...' : 'Task list coming soon...'}</p>
             </div>
           </div>
         );
@@ -261,7 +326,7 @@ const StaffDashboard = () => {
           <div css={contentStyles}>
             <div css={cardStyles}>
               <h3 css={cardHeadingStyles}><Calendar size={18} /> Schedule</h3>
-              <p css={cardTextStyles}>{loading ? 'Loading...' : 'Schedule coming soon...'}</p>
+              <p css={cardTextStyles}>{availabilityLoading ? 'Loading...' : 'Schedule coming soon...'}</p>
             </div>
           </div>
         );
@@ -275,6 +340,79 @@ const StaffDashboard = () => {
               <p css={cardTextStyles}>Joined: {profile.joined}</p>
               <p css={cardTextStyles}>Shifts: {profile.shifts}</p>
               <Link to="/staff/profile" css={linkStyles}>Edit Profile</Link>
+            </div>
+          </div>
+        );
+      case 'performance':
+        return (
+          <div css={contentStyles}>
+            <div css={cardStyles}>
+              <h3 css={cardHeadingStyles}><Award size={18} /> Performance Metrics</h3>
+              {perfLoading ? (
+                <p css={cardTextStyles}>Loading...</p>
+              ) : error ? (
+                <p css={cardTextStyles}>Error: {error}</p>
+              ) : metrics ? (
+                <>
+                  <p css={cardTextStyles}>Completed Orders: {metrics.completedOrders}</p>
+                  <p css={cardTextStyles}>Closed In-Dining Orders: {metrics.closedInDiningOrders}</p>
+                  <p css={cardTextStyles}>Table Turnovers: {metrics.tableTurnovers}</p>
+                  <p css={cardTextStyles}>Quick Check-Ins: {metrics.quickCheckIns}</p>
+                  <p css={cardTextStyles}>Positive Feedback: {metrics.positiveFeedback}</p>
+                  <p css={cardTextStyles}>Tips Received: {metrics.tipsReceived} MWK</p>
+                  <p css={cardTextStyles}>Bookings Handled: {metrics.bookingsHandled}</p>
+                  <p css={cardTextStyles}>Staff Requests Fulfilled: {metrics.staffRequestsFulfilled}</p>
+                </>
+              ) : (
+                <p css={cardTextStyles}>No metrics available</p>
+              )}
+            </div>
+            <div css={cardStyles}>
+              <h3 css={cardHeadingStyles}><Award size={18} /> Rewards</h3>
+              <p css={cardTextStyles}>Points: {points}</p>
+              <p css={cardTextStyles}>Tier: {tier}</p>
+              <button css={buttonStyles} onClick={handleCalculateRewards} disabled={perfLoading}>
+                {perfLoading ? 'Calculating...' : 'Calculate Rewards'}
+              </button>
+              <button css={buttonStyles} onClick={handleAssignTier} disabled={perfLoading} style={{ marginLeft: '10px' }}>
+                {perfLoading ? 'Assigning...' : 'Assign Tier'}
+              </button>
+            </div>
+            <div css={cardStyles}>
+              <h3 css={cardHeadingStyles}><Award size={18} /> Redeem Rewards</h3>
+              <form css={redeemFormStyles} onSubmit={handleRedeemRewards}>
+                <select
+                  css={selectStyles}
+                  value={rewardType}
+                  onChange={(e) => setRewardType(e.target.value)}
+                >
+                  <option value="gift_card">Gift Card</option>
+                  <option value="time_off">Time Off</option>
+                  <option value="cash">Cash</option>
+                </select>
+                <input
+                  css={inputStyles}
+                  type="number"
+                  value={pointsToRedeem}
+                  onChange={(e) => setPointsToRedeem(e.target.value)}
+                  placeholder="Points to redeem"
+                  min="1"
+                  max={points}
+                />
+                <button css={buttonStyles} type="submit" disabled={perfLoading || pointsToRedeem <= 0}>
+                  {perfLoading ? 'Redeeming...' : 'Redeem'}
+                </button>
+              </form>
+              {redemptionHistory.length > 0 && (
+                <>
+                  <h4 css={cardHeadingStyles}>Redemption History</h4>
+                  {redemptionHistory.map((item, index) => (
+                    <p key={index} css={cardTextStyles}>
+                      {item.rewardType} - {item.pointsRedeemed} points for {item.value} ({new Date(item.date).toLocaleDateString()})
+                    </p>
+                  ))}
+                </>
+              )}
             </div>
           </div>
         );
@@ -305,6 +443,9 @@ const StaffDashboard = () => {
           <div onClick={() => setActiveTab('profile')} css={actionBtnStyles} className={activeTab === 'profile' ? 'active' : ''}>
             <User size={14} /> Profile
           </div>
+          <div onClick={() => setActiveTab('performance')} css={actionBtnStyles} className={activeTab === 'performance' ? 'active' : ''}>
+            <Award size={14} /> Performance
+          </div>
         </div>
 
         {renderContent()}
@@ -319,6 +460,9 @@ const StaffDashboard = () => {
         </Link>
         <Link to="#" onClick={() => setActiveTab('profile')} css={sidebarLinkStyles} className={activeTab === 'profile' ? 'active' : ''}>
           <User size={22} />
+        </Link>
+        <Link to="#" onClick={() => setActiveTab('performance')} css={sidebarLinkStyles} className={activeTab === 'performance' ? 'active' : ''}>
+          <Award size={22} />
         </Link>
         <div css={switchContainerStyles}>
           <label css={switchStyles}>
