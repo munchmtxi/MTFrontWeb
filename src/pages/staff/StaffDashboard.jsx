@@ -6,9 +6,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/features/auth/authSlice';
 import { useStaffAvailability } from '@/hooks/staff/useStaffAvailability';
 import { usePerformanceIncentive } from '@/hooks/staff/usePerformanceIncentive';
-import { Calendar, CheckSquare, User, Bell, Award } from 'lucide-react';
+import { useStaffDriverCoordination } from '@/hooks/staff/useStaffDriverCoordination';
+import { Calendar, CheckSquare, User, Bell, Award, Truck, Utensils, Table2 } from 'lucide-react';
 
-// Responsive Styles (unchanged)
+// Styles (unchanged except for additions)
 const dashboardStyles = css`
   min-height: 100vh;
   background: #1a202c;
@@ -240,6 +241,46 @@ const inputStyles = css`
   border-radius: 4px;
 `;
 
+const taskTabsStyles = css`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+const taskTabStyles = css`
+  padding: 10px 20px;
+  cursor: pointer;
+  background: #4a5568;
+  color: #d1d5db;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+  &.active {
+    background: #fedc01;
+    color: #111827;
+  }
+`;
+
+const taskActionBtnStyles = css`
+  padding: 6px 12px;
+  background: #fedc01;
+  color: #111827;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-right: 5px;
+  &:hover {
+    background: #f4c430;
+  }
+  &:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+  }
+`;
+
 const StaffDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -251,26 +292,45 @@ const StaffDashboard = () => {
     tier,
     redemptionHistory,
     loading: perfLoading,
-    error,
+    error: perfError,
     getMetrics,
     calculate,
     assign,
     redeem,
   } = usePerformanceIncentive();
+  const {
+    orders,
+    tracking,
+    loading: coordLoading,
+    error: coordError,
+    assignDriver,
+    confirmPickup,
+    trackDelivery,
+    completeOrder,
+    getDriverOrderOverview,
+    resetError,
+  } = useStaffDriverCoordination();
   const [activeTab, setActiveTab] = useState('tasks');
+  const [taskSubTab, setTaskSubTab] = useState('orders');
   const [rewardType, setRewardType] = useState('gift_card');
   const [pointsToRedeem, setPointsToRedeem] = useState('');
-  const [hasFetchedMetrics, setHasFetchedMetrics] = useState(false); // New flag
+  const [hasFetchedMetrics, setHasFetchedMetrics] = useState(false);
+  const [hasFetchedOrders, setHasFetchedOrders] = useState(false);
 
-  const staffId = user?.id; // Assuming user.id is the staffId
+  const staffId = user?.id;
+  const branchId = '1'; // Replace with dynamic branchId from user or context
 
-  // Fetch metrics only once when the component mounts and staffId is available
+  // Fetch initial data only once when staffId and branchId are available
   useEffect(() => {
     if (staffId && !hasFetchedMetrics) {
       getMetrics(staffId);
-      setHasFetchedMetrics(true); // Set flag to prevent re-fetching
+      setHasFetchedMetrics(true);
     }
-  }, [staffId, getMetrics, hasFetchedMetrics]);
+    if (branchId && !hasFetchedOrders) {
+      getDriverOrderOverview(branchId);
+      setHasFetchedOrders(true);
+    }
+  }, [staffId, branchId]);
 
   const profile = {
     name: user?.email || 'Unknown',
@@ -310,17 +370,120 @@ const StaffDashboard = () => {
     }
   };
 
+  const renderTasksContent = () => {
+    return (
+      <div css={contentStyles}>
+        <div css={taskTabsStyles}>
+          <div
+            css={taskTabStyles}
+            className={taskSubTab === 'orders' ? 'active' : ''}
+            onClick={() => setTaskSubTab('orders')}
+          >
+            <Truck size={14} /> Orders
+          </div>
+          <div
+            css={taskTabStyles}
+            className={taskSubTab === 'inDining' ? 'active' : ''}
+            onClick={() => setTaskSubTab('inDining')}
+          >
+            <Utensils size={14} /> In-Dining
+          </div>
+          <div
+            css={taskTabStyles}
+            className={taskSubTab === 'tableBooking' ? 'active' : ''}
+            onClick={() => setTaskSubTab('tableBooking')}
+          >
+            <Table2 size={14} /> Table Booking
+          </div>
+        </div>
+
+        {taskSubTab === 'orders' && (
+          <div css={cardStyles}>
+            <h3 css={cardHeadingStyles}><Truck size={18} /> Order Tasks</h3>
+            {coordLoading ? (
+              <p css={cardTextStyles}>Loading...</p>
+            ) : coordError ? (
+              <p css={cardTextStyles}>
+                Error: {coordError}{' '}
+                <button css={buttonStyles} onClick={resetError}>
+                  Retry
+                </button>
+              </p>
+            ) : orders.length > 0 ? (
+              orders.map((order) => (
+                <div key={order.orderId} css={cardTextStyles}>
+                  <p>Order #{order.orderNumber} - Status: {order.status}</p>
+                  {order.status === 'preparing' && !order.driver && (
+                    <button
+                      css={taskActionBtnStyles}
+                      onClick={() => assignDriver(order.orderId, null)}
+                      disabled={coordLoading}
+                    >
+                      Assign Driver
+                    </button>
+                  )}
+                  {order.status === 'preparing' && order.driver && (
+                    <button
+                      css={taskActionBtnStyles}
+                      onClick={() => confirmPickup(order.orderId, 'driver-token-placeholder')}
+                      disabled={coordLoading}
+                    >
+                      Confirm Pickup
+                    </button>
+                  )}
+                  {order.status === 'out_for_delivery' && (
+                    <>
+                      <button
+                        css={taskActionBtnStyles}
+                        onClick={() => trackDelivery(order.orderId)}
+                        disabled={coordLoading}
+                      >
+                        Track Delivery
+                      </button>
+                      <button
+                        css={taskActionBtnStyles}
+                        onClick={() => completeOrder(order.orderId)}
+                        disabled={coordLoading}
+                      >
+                        Complete Order
+                      </button>
+                    </>
+                  )}
+                  {tracking && tracking.orderId === order.orderId && (
+                    <p css={cardTextStyles}>
+                      Tracking: {tracking.currentLocation} - ETA:{' '}
+                      {new Date(tracking.estimatedDeliveryTime).toLocaleTimeString()}
+                    </p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p css={cardTextStyles}>No orders available</p>
+            )}
+          </div>
+        )}
+
+        {taskSubTab === 'inDining' && (
+          <div css={cardStyles}>
+            <h3 css={cardHeadingStyles}><Utensils size={18} /> In-Dining Tasks</h3>
+            <p css={cardTextStyles}>In-Dining tasks coming soon...</p>
+          </div>
+        )}
+
+        {taskSubTab === 'tableBooking' && (
+          <div css={cardStyles}>
+            <h3 css={cardHeadingStyles}><Table2 size={18} /> Table Booking Tasks</h3>
+            <p css={cardTextStyles}>Table booking tasks coming soon...</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'tasks':
-        return (
-          <div css={contentStyles}>
-            <div css={cardStyles}>
-              <h3 css={cardHeadingStyles}><CheckSquare size={18} /> Tasks  Tasks</h3>
-              <p css={cardTextStyles}>{availabilityLoading ? 'Loading...' : 'Task list coming soon...'}</p>
-            </div>
-          </div>
-        );
+        return renderTasksContent();
       case 'schedule':
         return (
           <div css={contentStyles}>
@@ -339,7 +502,9 @@ const StaffDashboard = () => {
               <p css={cardTextStyles}>Role: {profile.role}</p>
               <p css={cardTextStyles}>Joined: {profile.joined}</p>
               <p css={cardTextStyles}>Shifts: {profile.shifts}</p>
-              <Link to="/staff/profile" css={linkStyles}>Edit Profile</Link>
+              <Link to="/staff/profile" css={linkStyles}>
+                Edit Profile
+              </Link>
             </div>
           </div>
         );
@@ -350,8 +515,8 @@ const StaffDashboard = () => {
               <h3 css={cardHeadingStyles}><Award size={18} /> Performance Metrics</h3>
               {perfLoading ? (
                 <p css={cardTextStyles}>Loading...</p>
-              ) : error ? (
-                <p css={cardTextStyles}>Error: {error}</p>
+              ) : perfError ? (
+                <p css={cardTextStyles}>Error: {perfError}</p>
               ) : metrics ? (
                 <>
                   <p css={cardTextStyles}>Completed Orders: {metrics.completedOrders}</p>
@@ -374,7 +539,12 @@ const StaffDashboard = () => {
               <button css={buttonStyles} onClick={handleCalculateRewards} disabled={perfLoading}>
                 {perfLoading ? 'Calculating...' : 'Calculate Rewards'}
               </button>
-              <button css={buttonStyles} onClick={handleAssignTier} disabled={perfLoading} style={{ marginLeft: '10px' }}>
+              <button
+                css={buttonStyles}
+                onClick={handleAssignTier}
+                disabled={perfLoading}
+                style={{ marginLeft: '10px' }}
+              >
                 {perfLoading ? 'Assigning...' : 'Assign Tier'}
               </button>
             </div>
@@ -408,7 +578,8 @@ const StaffDashboard = () => {
                   <h4 css={cardHeadingStyles}>Redemption History</h4>
                   {redemptionHistory.map((item, index) => (
                     <p key={index} css={cardTextStyles}>
-                      {item.rewardType} - {item.pointsRedeemed} points for {item.value} ({new Date(item.date).toLocaleDateString()})
+                      {item.rewardType} - {item.pointsRedeemed} points for {item.value} (
+                      {new Date(item.date).toLocaleDateString()})
                     </p>
                   ))}
                 </>
@@ -427,23 +598,43 @@ const StaffDashboard = () => {
         <div css={headerStyles}>
           <div css={headerLeftStyles}>Staff Dashboard</div>
           <div css={headerRightStyles}>
-            <Link to="/staff/profile" css={linkStyles}>Profile</Link>
-            <button onClick={handleLogout} css={buttonStyles}>Logout</button>
+            <Link to="/staff/profile" css={linkStyles}>
+              Profile
+            </Link>
+            <button onClick={handleLogout} css={buttonStyles}>
+              Logout
+            </button>
             <Bell size={18} />
           </div>
         </div>
 
         <div css={actionsStyles}>
-          <div onClick={() => setActiveTab('tasks')} css={actionBtnStyles} className={activeTab === 'tasks' ? 'active' : ''}>
+          <div
+            onClick={() => setActiveTab('tasks')}
+            css={actionBtnStyles}
+            className={activeTab === 'tasks' ? 'active' : ''}
+          >
             <CheckSquare size={14} /> Tasks
           </div>
-          <div onClick={() => setActiveTab('schedule')} css={actionBtnStyles} className={activeTab === 'schedule' ? 'active' : ''}>
+          <div
+            onClick={() => setActiveTab('schedule')}
+            css={actionBtnStyles}
+            className={activeTab === 'schedule' ? 'active' : ''}
+          >
             <Calendar size={14} /> Schedule
           </div>
-          <div onClick={() => setActiveTab('profile')} css={actionBtnStyles} className={activeTab === 'profile' ? 'active' : ''}>
+          <div
+            onClick={() => setActiveTab('profile')}
+            css={actionBtnStyles}
+            className={activeTab === 'profile' ? 'active' : ''}
+          >
             <User size={14} /> Profile
           </div>
-          <div onClick={() => setActiveTab('performance')} css={actionBtnStyles} className={activeTab === 'performance' ? 'active' : ''}>
+          <div
+            onClick={() => setActiveTab('performance')}
+            css={actionBtnStyles}
+            className={activeTab === 'performance' ? 'active' : ''}
+          >
             <Award size={14} /> Performance
           </div>
         </div>
@@ -452,16 +643,36 @@ const StaffDashboard = () => {
       </div>
 
       <div css={sidebarStyles}>
-        <Link to="#" onClick={() => setActiveTab('tasks')} css={sidebarLinkStyles} className={activeTab === 'tasks' ? 'active' : ''}>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('tasks')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'tasks' ? 'active' : ''}
+        >
           <CheckSquare size={22} />
         </Link>
-        <Link to="#" onClick={() => setActiveTab('schedule')} css={sidebarLinkStyles} className={activeTab === 'schedule' ? 'active' : ''}>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('schedule')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'schedule' ? 'active' : ''}
+        >
           <Calendar size={22} />
         </Link>
-        <Link to="#" onClick={() => setActiveTab('profile')} css={sidebarLinkStyles} className={activeTab === 'profile' ? 'active' : ''}>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('profile')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'profile' ? 'active' : ''}
+        >
           <User size={22} />
         </Link>
-        <Link to="#" onClick={() => setActiveTab('performance')} css={sidebarLinkStyles} className={activeTab === 'performance' ? 'active' : ''}>
+        <Link
+          to="#"
+          onClick={() => setActiveTab('performance')}
+          css={sidebarLinkStyles}
+          className={activeTab === 'performance' ? 'active' : ''}
+        >
           <Award size={22} />
         </Link>
         <div css={switchContainerStyles}>

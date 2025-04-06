@@ -31,7 +31,8 @@ import driverOrderReducer from '../features/driver/driverOrderSlice';
 import driverRideReducer from '../features/driver/driverRideSlice';
 import driverPaymentReducer from '../features/driver/driverPaymentSlice';
 import staffAvailabilityReducer from '../features/staff/staffAvailabilitySlice';
-import performanceIncentiveReducer from '../features/staff/performanceIncentiveSlice'; 
+import performanceIncentiveReducer from '../features/staff/performanceIncentiveSlice';
+import staffDriverCoordinationReducer from '../features/staff/staffDriverCoordinationSlice';
 
 const store = configureStore({
   reducer: {
@@ -67,7 +68,8 @@ const store = configureStore({
     driverOrders: driverOrderReducer,
     driverPayment: driverPaymentReducer,
     staffAvailability: staffAvailabilityReducer,
-    performanceIncentive: performanceIncentiveReducer, 
+    performanceIncentive: performanceIncentiveReducer,
+    staffDriverCoordination: staffDriverCoordinationReducer,
   },
 });
 
