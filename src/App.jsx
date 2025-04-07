@@ -42,6 +42,8 @@ import Staff from '@/pages/merchant/Staff';
 // Staff Pages
 import StaffDashboard from '@/pages/staff/StaffDashboard';
 import StaffProfile from '@/pages/staff/StaffProfile';
+import StaffQuickLinks from '@/pages/staff/StaffQuickLinks'; 
+import StaffNotifications from '@/pages/staff/StaffNotifications';
 
 // Driver Pages
 import DriverDashboard from '@/pages/driver/DriverDashboard';
@@ -314,6 +316,22 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['staff']}>
                       <StaffProfile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/staff/notifications"
+                  element={
+                    <ProtectedRoute allowedRoles={['staff']}>
+                      <StaffNotifications />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/staff/quick-links"
+                  element={
+                    <ProtectedRoute allowedRoles={['staff']}>
+                      <StaffQuickLinks />
                     </ProtectedRoute>
                   }
                 />

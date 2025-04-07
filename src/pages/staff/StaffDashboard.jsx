@@ -7,9 +7,9 @@ import { logout } from '@/features/auth/authSlice';
 import { useStaffAvailability } from '@/hooks/staff/useStaffAvailability';
 import { usePerformanceIncentive } from '@/hooks/staff/usePerformanceIncentive';
 import { useStaffDriverCoordination } from '@/hooks/staff/useStaffDriverCoordination';
-import { Calendar, CheckSquare, User, Bell, Award, Truck, Utensils, Table2 } from 'lucide-react';
+import { Calendar, CheckSquare, User, Bell, Award, Truck, Table2, Link as LinkIcon } from 'lucide-react';
 
-// Styles (unchanged except for additions)
+// Existing styles (unchanged unless noted)
 const dashboardStyles = css`
   min-height: 100vh;
   background: #1a202c;
@@ -45,6 +45,7 @@ const sidebarStyles = css`
 const sidebarLinkStyles = css`
   color: #6b7280;
   transition: color 0.3s ease;
+  cursor: pointer; /* Ensure clickable */
   &:hover, &.active {
     color: #fedc01;
   }
@@ -106,6 +107,7 @@ const mainContentStyles = css`
   flex: 1;
   padding: 20px;
   padding-bottom: 70px;
+  z-index: 0;
   @media (min-width: 768px) {
     padding-bottom: 20px;
   }
@@ -146,6 +148,7 @@ const linkStyles = css`
   color: #ffffff;
   text-decoration: none;
   font-size: 14px;
+  cursor: pointer;
   &:hover {
     text-decoration: underline;
   }
@@ -181,6 +184,8 @@ const actionBtnStyles = css`
   display: flex;
   align-items: center;
   gap: 6px;
+  position: relative;
+  z-index: 1;
   &:hover, &.active {
     background: #fedc01;
     color: #111827;
@@ -299,7 +304,7 @@ const StaffDashboard = () => {
     redeem,
   } = usePerformanceIncentive();
   const {
-    orders,
+    orders: driverOrders,
     tracking,
     loading: coordLoading,
     error: coordError,
@@ -308,8 +313,9 @@ const StaffDashboard = () => {
     trackDelivery,
     completeOrder,
     getDriverOrderOverview,
-    resetError,
+    resetError: resetCoordError,
   } = useStaffDriverCoordination();
+
   const [activeTab, setActiveTab] = useState('tasks');
   const [taskSubTab, setTaskSubTab] = useState('orders');
   const [rewardType, setRewardType] = useState('gift_card');
@@ -320,7 +326,6 @@ const StaffDashboard = () => {
   const staffId = user?.id;
   const branchId = '1'; // Replace with dynamic branchId from user or context
 
-  // Fetch initial data only once when staffId and branchId are available
   useEffect(() => {
     if (staffId && !hasFetchedMetrics) {
       getMetrics(staffId);
@@ -330,7 +335,7 @@ const StaffDashboard = () => {
       getDriverOrderOverview(branchId);
       setHasFetchedOrders(true);
     }
-  }, [staffId, branchId]);
+  }, [staffId, branchId, getMetrics, getDriverOrderOverview]);
 
   const profile = {
     name: user?.email || 'Unknown',
@@ -383,13 +388,6 @@ const StaffDashboard = () => {
           </div>
           <div
             css={taskTabStyles}
-            className={taskSubTab === 'inDining' ? 'active' : ''}
-            onClick={() => setTaskSubTab('inDining')}
-          >
-            <Utensils size={14} /> In-Dining
-          </div>
-          <div
-            css={taskTabStyles}
             className={taskSubTab === 'tableBooking' ? 'active' : ''}
             onClick={() => setTaskSubTab('tableBooking')}
           >
@@ -405,12 +403,12 @@ const StaffDashboard = () => {
             ) : coordError ? (
               <p css={cardTextStyles}>
                 Error: {coordError}{' '}
-                <button css={buttonStyles} onClick={resetError}>
+                <button css={buttonStyles} onClick={resetCoordError}>
                   Retry
                 </button>
               </p>
-            ) : orders.length > 0 ? (
-              orders.map((order) => (
+            ) : driverOrders.length > 0 ? (
+              driverOrders.map((order) => (
                 <div key={order.orderId} css={cardTextStyles}>
                   <p>Order #{order.orderNumber} - Status: {order.status}</p>
                   {order.status === 'preparing' && !order.driver && (
@@ -460,13 +458,6 @@ const StaffDashboard = () => {
             ) : (
               <p css={cardTextStyles}>No orders available</p>
             )}
-          </div>
-        )}
-
-        {taskSubTab === 'inDining' && (
-          <div css={cardStyles}>
-            <h3 css={cardHeadingStyles}><Utensils size={18} /> In-Dining Tasks</h3>
-            <p css={cardTextStyles}>In-Dining tasks coming soon...</p>
           </div>
         )}
 
@@ -601,6 +592,9 @@ const StaffDashboard = () => {
             <Link to="/staff/profile" css={linkStyles}>
               Profile
             </Link>
+            <Link to="/staff/notifications" css={linkStyles}>
+              Notifications
+            </Link>
             <button onClick={handleLogout} css={buttonStyles}>
               Logout
             </button>
@@ -637,6 +631,12 @@ const StaffDashboard = () => {
           >
             <Award size={14} /> Performance
           </div>
+          <Link to="/staff/notifications" css={actionBtnStyles}>
+            <Bell size={14} /> Notifications
+          </Link>
+          <Link to="/staff/quick-links" css={actionBtnStyles}>
+            <LinkIcon size={14} /> Quick Links
+          </Link>
         </div>
 
         {renderContent()}
@@ -674,6 +674,12 @@ const StaffDashboard = () => {
           className={activeTab === 'performance' ? 'active' : ''}
         >
           <Award size={22} />
+        </Link>
+        <Link to="/staff/notifications" css={sidebarLinkStyles}>
+          <Bell size={22} />
+        </Link>
+        <Link to="/staff/quick-links" css={sidebarLinkStyles}>
+          <LinkIcon size={22} />
         </Link>
         <div css={switchContainerStyles}>
           <label css={switchStyles}>
